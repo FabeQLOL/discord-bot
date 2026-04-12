@@ -1,11 +1,11 @@
-print("BOT STARTED")
-
 import discord
 from discord.ext import commands
 import os
+import random
 
 intents = discord.Intents.default()
 intents.message_content = True
+
 bot = commands.Bot(command_prefix="!", intents=intents)
 
 @bot.event
@@ -18,8 +18,6 @@ async def hej(ctx):
 
 @bot.command()
 async def losuj(ctx):
-    import random
-    liczba = random.randint(1, 100)
-    await ctx.send(f"Wylosowałem: {liczba}")
+    await ctx.send(random.randint(1, 100))
 
 bot.run(os.getenv("DISCORD_TOKEN"))
