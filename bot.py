@@ -1,10 +1,9 @@
-print("START 1")
-
-
 import discord
 from discord.ext import commands
 import os
 import random
+
+print("BOT STARTED")
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -23,6 +22,9 @@ async def hej(ctx):
 async def losuj(ctx):
     await ctx.send(random.randint(1, 100))
 
-print("START 2 - before run")
+token = os.getenv("DISCORD_TOKEN")
 
-bot.run(os.getenv("DISCORD_TOKEN"))
+if token is None:
+    print("BRAK TOKENA W ENV!")
+else:
+    bot.run(token)
