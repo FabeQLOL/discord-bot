@@ -22,4 +22,4 @@ async def hej(ctx):
 async def losuj(ctx):
     await ctx.send(random.randint(1, 100))
 
-print(os.getenv("DISCORD_TOKEN"))
+bot.run(os.getenv("DISCORD_TOKEN"))
