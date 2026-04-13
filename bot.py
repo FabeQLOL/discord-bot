@@ -33,9 +33,15 @@ async def coinflip(interaction: discord.Interaction):
     wynik = random.choice(["Orzeł 🦅", "Reszka 🪙"])
     await interaction.response.send_message(f"🪙 {wynik}")
 
-@bot.tree.error
-async def on_app_command_error(interaction, error):
-    await interaction.response.send_message("❌ Nie ma takiej komendy!", ephemeral=True)
+@bot.tree.command(name="help", description="Lista komend")
+async def help(interaction: discord.Interaction):
+    await interaction.response.send_message(
+        "📜 Dostępne komendy:\n"
+        "/hej\n"
+        "/losuj\n"
+        "/coinflip",
+        ephemeral=True
+    )
 
 # 🔐 TOKEN
 token = os.getenv("TOKEN_DISCORD")
