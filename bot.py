@@ -42,12 +42,6 @@ async def help(interaction: discord.Interaction):
         "/coinflip",
         ephemeral=True
     )
-   
-🤖 Serwery: {guilds}
-👥 Użytkownicy: {users}
-📺 Kanały: {channels}
-"""
-    )
 
 # 🔐 TOKEN
 token = os.getenv("TOKEN_DISCORD")
