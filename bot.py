@@ -20,11 +20,14 @@ async def hej(ctx):
 
 @bot.command()
 async def losuj(ctx):
-    await ctx.send(random.randint(1, 100))
+    number = random.randint(1, 100)
+    await ctx.send(f"Wylosowałem: {number}")
 
-token = os.getenv("DISCORD_TOKEN")
+# START BOTA
+if __name__ == "__main__":
+    token = os.getenv("DISCORD_TOKEN")
 
-if token is None:
-    print("BRAK TOKENA W ENV!")
-else:
-    bot.run(token)
+    if not token:
+        print("❌ ERROR: Brak tokena!")
+    else:
+        bot.run(token)
