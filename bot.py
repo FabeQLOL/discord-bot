@@ -42,6 +42,20 @@ async def help(interaction: discord.Interaction):
         "/coinflip",
         ephemeral=True
     )
+    @bot.tree.command(name="stats", description="Statystyki bota")
+async def stats(interaction: discord.Interaction):
+    guilds = len(bot.guilds)
+    users = sum(g.member_count for g in bot.guilds)
+    channels = sum(len(g.channels) for g in bot.guilds)
+
+    await interaction.response.send_message(
+        f"""📊 Statystyki bota:
+
+🤖 Serwery: {guilds}
+👥 Użytkownicy: {users}
+📺 Kanały: {channels}
+"""
+    )
 
 # 🔐 TOKEN
 token = os.getenv("TOKEN_DISCORD")
