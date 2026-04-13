@@ -41,3 +41,4 @@ if not token:
 else:
     print("BOT STARTED")
     bot.run(token)
+
