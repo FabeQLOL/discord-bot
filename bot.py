@@ -305,6 +305,50 @@ async def mute(interaction: discord.Interaction, user: discord.Member):
     except Exception as e:
         await interaction.response.send_message(f"❌ Błąd: {e}", ephemeral=True)
 
+from datetime import timedelta
+
+@bot.tree.command(name="unmute", description="Odcisz użytkownika 🔊")
+async def unmute(interaction: discord.Interaction, user: discord.Member):
+
+    if not interaction.user.guild_permissions.kick_members:
+        await interaction.response.send_message("❌ Brak permisji", ephemeral=True)
+        return
+
+    try:
+        # usuwa timeout
+        await user.timeout(None)
+
+        await interaction.response.send_message(
+            f"🔊 {user.mention} został odciszony!"
+        )
+
+    except Exception as e:
+        await interaction.response.send_message(
+            f"❌ Błąd: {e}",
+            ephemeral=True
+        )
+
+bot.tree.command(name="unban", description="Odbanuj użytkownika 🔓")
+async def unban(interaction: discord.Interaction, user_id: str):
+
+    if not interaction.user.guild_permissions.ban_members:
+        await interaction.response.send_message("❌ Brak permisji", ephemeral=True)
+        return
+
+    try:
+        user = await bot.fetch_user(int(user_id))
+        await interaction.guild.unban(user)
+
+        await interaction.response.send_message(
+            f"🔓 {user} został odbanowany!"
+        )
+
+    except Exception as e:
+        await interaction.response.send_message(
+            f"❌ Błąd: {e}",
+            ephemeral=True
+        )
+
 # ===== BŁĘDY (np. brak permisji) =====
 
 @ban.error
