@@ -41,7 +41,8 @@ def get_user(user_id):
         data[str(user_id)] = {
             "money": 100,
             "last_work": 0,
-            "last_daily": 0
+            "last_daily": 0,
+            "warns": 0
         }
         save_data(data)
     return data
@@ -216,6 +217,53 @@ async def buy(interaction: discord.Interaction, item: str):
         await interaction.response.send_message("❌ Nie ma takiego itemu", ephemeral=True)
 
 # ===== MODERACJA =====
+
+@bot.tree.command(name="warn", description="Daj ostrzeżenie ⚠️")
+async def warn(interaction: discord.Interaction, user: discord.Member, powod: str):
+
+    if not interaction.user.guild_permissions.kick_members:
+        await interaction.response.send_message("❌ Nie masz permisji", ephemeral=True)
+        return
+
+    data = get_user(user.id)
+    user_id = str(user.id)
+
+    data[user_id]["warns"] += 1
+    warns = data[user_id]["warns"]
+
+    save_data(data)
+
+    await interaction.response.send_message(
+        f"⚠️ {user.mention} dostał warna!\nPowód: {powod}\nWarny: {warns}"
+    )
+
+@bot.tree.command(name="warns", description="Sprawdź warny 📋")
+async def warns(interaction: discord.Interaction, user: discord.Member):
+    data = get_user(user.id)
+    user_id = str(user.id)
+
+    warns = data[user_id]["warns"]
+
+    await interaction.response.send_message(
+        f"📋 {user.mention} ma {warns} warnów"
+    )
+
+@bot.tree.command(name="clearwarns", description="Usuń warny 🧹")
+async def clearwarns(interaction: discord.Interaction, user: discord.Member):
+
+    if not interaction.user.guild_permissions.kick_members:
+        await interaction.response.send_message("❌ Nie masz permisji", ephemeral=True)
+        return
+
+    data = get_user(user.id)
+    user_id = str(user.id)
+
+    data[user_id]["warns"] = 0
+    save_data(data)
+
+    await interaction.response.send_message(
+        f"🧹 Wyczyszczono warny dla {user.mention}"
+    )
 
 @bot.tree.command(name="ban", description="Banuje użytkownika")
 @app_commands.checks.has_permissions(ban_members=True)
