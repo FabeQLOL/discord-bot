@@ -174,6 +174,47 @@ async def pay(interaction: discord.Interaction, user: discord.Member, kwota: int
         f"💸 Przelałeś {kwota}$ do {user.mention}"
     )
 
+@bot.tree.command(name="shop", description="Sklep 🛒")
+async def shop(interaction: discord.Interaction):
+    msg = (
+        "🛒 **SKLEP**\n\n"
+        "1️⃣ VIP - 1000$\n"
+        "Nadaje specjalną rangę 😎"
+    )
+
+    await interaction.response.send_message(msg)
+
+VIP_ROLE_ID = 11493505575932395592  # <- TU WSTAW ID ROLI
+
+@bot.tree.command(name="buy", description="Kup coś ze sklepu 💸")
+async def buy(interaction: discord.Interaction, item: str):
+    data = get_user(interaction.user.id)
+    user_id = str(interaction.user.id)
+
+    if item.lower() == "vip":
+
+        if data[user_id]["money"] < 1000:
+            await interaction.response.send_message("❌ Nie masz 1000$", ephemeral=True)
+            return
+
+        role = interaction.guild.get_role(VIP_ROLE_ID)
+
+        if role in interaction.user.roles:
+            await interaction.response.send_message("❌ Masz już VIP", ephemeral=True)
+            return
+
+        # zabieramy kasę
+        data[user_id]["money"] -= 1000
+        save_data(data)
+
+        # nadajemy rolę
+        await interaction.user.add_roles(role)
+
+        await interaction.response.send_message("🎉 Kupiłeś rangę VIP!")
+
+    else:
+        await interaction.response.send_message("❌ Nie ma takiego itemu", ephemeral=True)
+
 # ===== MODERACJA =====
 
 @bot.tree.command(name="ban", description="Banuje użytkownika")
