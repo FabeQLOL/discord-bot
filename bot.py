@@ -4,6 +4,7 @@ from discord import app_commands
 import os
 import random
 import asyncio
+import json
 
 print("BOT STARTED")
 
@@ -22,6 +23,24 @@ async def on_ready():
     except Exception as e:
         print(e)
 
+def load_data():
+    try:
+        with open("economy.json", "r") as f:
+            return json.load(f)
+    except:
+        return {}
+
+def save_data(data):
+    with open("economy.json", "w") as f:
+        json.dump(data, f, indent=4)
+
+def get_user(user_id):
+    data = load_data()
+    if str(user_id) not in data:
+        data[str(user_id)] = {"money": 100}
+        save_data(data)
+    return data
+
 # ===== KOMENDY =====
 
 @bot.tree.command(name="hej", description="Powitanie")
@@ -36,6 +55,54 @@ async def losuj(interaction: discord.Interaction):
 async def coinflip(interaction: discord.Interaction):
     wynik = random.choice(["Orzeł 🦅", "Reszka 🪙"])
     await interaction.response.send_message(wynik)
+
+@bot.tree.command(name="balance", description="Sprawdź swój stan konta 💰")
+async def balance(interaction: discord.Interaction):
+    data = get_user(interaction.user.id)
+    money = data[str(interaction.user.id)]["money"]
+
+    await interaction.response.send_message(f"Masz {money}$ 💰")
+
+@bot.tree.command(name="work", description="Zarabiaj pieniądze 💼")
+async def work(interaction: discord.Interaction):
+    data = get_user(interaction.user.id)
+
+    zarobek = random.randint(10, 50)
+    data[str(interaction.user.id)]["money"] += zarobek
+
+    save_data(data)
+
+    await interaction.response.send_message(f"Zarobiłeś {zarobek}$ 💰")
+
+@bot.tree.command(name="ruletka", description="Zagraj w ruletkę 🎰")
+async def ruletka(interaction: discord.Interaction, liczba: int, stawka: int):
+
+    if liczba < 1 or liczba > 36:
+        await interaction.response.send_message("Liczba 1-36 ❌", ephemeral=True)
+        return
+
+    data = get_user(interaction.user.id)
+    user_id = str(interaction.user.id)
+
+    if data[user_id]["money"] < stawka:
+        await interaction.response.send_message("Nie masz tyle kasy ❌", ephemeral=True)
+        return
+
+    wylosowana = random.randint(1, 36)
+
+    if liczba == wylosowana:
+        wygrana = stawka * 10
+        data[user_id]["money"] += wygrana
+        wynik = f"🎉 WYGRAŁEŚ {wygrana}$!"
+    else:
+        data[user_id]["money"] -= stawka
+        wynik = f"😢 Przegrałeś {stawka}$"
+
+    save_data(data)
+
+    await interaction.response.send_message(
+        f"{wynik}\nTwoja liczba: {liczba}\nWylosowana: {wylosowana}"
+    )
 
 # ===== MODERACJA =====
 
