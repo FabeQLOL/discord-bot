@@ -42,10 +42,40 @@ def get_user(user_id):
             "money": 100,
             "last_work": 0,
             "last_daily": 0,
-            "warns": 0
+            "warns": 0,
+            "exp": 0,
+            "level": 1
         }
         save_data(data)
     return data
+
+@bot.event
+async def on_message(message):
+    if message.author.bot:
+        return
+
+    data = get_user(message.author.id)
+    user_id = str(message.author.id)
+
+    # dodaj EXP
+    exp_gain = random.randint(5, 15)
+    data[user_id]["exp"] += exp_gain
+
+    # sprawdź level up
+    level = data[user_id]["level"]
+    exp = data[user_id]["exp"]
+
+    if exp >= level * 100:
+        data[user_id]["level"] += 1
+        data[user_id]["exp"] = 0
+
+        await message.channel.send(
+            f"🎉 {message.author.mention} wbił level {level + 1}!"
+        )
+
+    save_data(data)
+
+    await bot.process_commands(message)  # ważne!
 
 # ===== KOMENDY =====
 
@@ -209,7 +239,40 @@ async def buy(interaction: discord.Interaction, item: str):
 
     else:
         await interaction.response.send_message("❌ Nie ma takiego itemu", ephemeral=True)
-        
+
+@bot.tree.command(name="level", description="Sprawdź swój level 📊")
+async def level(interaction: discord.Interaction, user: discord.Member = None):
+
+    if user is None:
+        user = interaction.user
+
+    data = get_user(user.id)
+    user_id = str(user.id)
+
+    lvl = data[user_id]["level"]
+    exp = data[user_id]["exp"]
+
+    await interaction.response.send_message(
+        f"📊 {user.mention}\nLevel: {lvl}\nEXP: {exp}/{lvl*100}"
+    )
+
+@bot.tree.command(name="toplvl", description="Top leveli 🏆")
+async def top(interaction: discord.Interaction):
+
+    data = load_data()
+
+    sorted_users = sorted(
+        data.items(),
+        key=lambda x: x[1].get("level", 0),
+        reverse=True
+    )
+
+    msg = "🏆 TOP LEVELI:\n"
+
+    for i, (user_id, info) in enumerate(sorted_users[:10], start=1):
+        msg += f"{i}. <@{user_id}> - lvl {info.get('level', 0)}\n"
+
+    await interaction.response.send_message(msg)
 
 # ===== MODERACJA =====
 
