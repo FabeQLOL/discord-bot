@@ -5,6 +5,7 @@ import os
 import random
 import asyncio
 import json
+import time
 
 print("BOT STARTED")
 
@@ -37,7 +38,11 @@ def save_data(data):
 def get_user(user_id):
     data = load_data()
     if str(user_id) not in data:
-        data[str(user_id)] = {"money": 100}
+        data[str(user_id)] = {
+            "money": 100,
+            "last_work": 0,
+            "last_daily": 0
+        }
         save_data(data)
     return data
 
@@ -66,14 +71,21 @@ async def balance(interaction: discord.Interaction):
 @bot.tree.command(name="work", description="Zarabiaj pieniądze 💼")
 async def work(interaction: discord.Interaction):
     data = get_user(interaction.user.id)
+    user = str(interaction.user.id)
 
-    zarobek = random.randint(10, 50)
-    data[str(interaction.user.id)]["money"] += zarobek
+    now = time.time()
+
+    if now - data[user]["last_work"] < 60:  # 60 sekund cooldown
+        await interaction.response.send_message("⏳ Poczekaj chwilę!", ephemeral=True)
+        return
+
+    zarobek = random.randint(20, 80)
+    data[user]["money"] += zarobek
+    data[user]["last_work"] = now
 
     save_data(data)
 
-    await interaction.response.send_message(f"Zarobiłeś {zarobek}$ 💰")
-
+    await interaction.response.send_message(f"💼 Zarobiłeś {zarobek}$!")
 @bot.tree.command(name="ruletka", description="Zagraj w ruletkę 🎰")
 async def ruletka(interaction: discord.Interaction, liczba: int, stawka: int):
 
@@ -102,6 +114,64 @@ async def ruletka(interaction: discord.Interaction, liczba: int, stawka: int):
 
     await interaction.response.send_message(
         f"{wynik}\nTwoja liczba: {liczba}\nWylosowana: {wylosowana}"
+    )
+
+@bot.tree.command(name="daily", description="Codzienna nagroda 🎁")
+async def daily(interaction: discord.Interaction):
+    data = get_user(interaction.user.id)
+    user = str(interaction.user.id)
+
+    now = time.time()
+
+    if now - data[user]["last_daily"] < 86400:
+        await interaction.response.send_message("❌ Już odebrałeś daily!", ephemeral=True)
+        return
+
+    nagroda = random.randint(100, 300)
+    data[user]["money"] += nagroda
+    data[user]["last_daily"] = now
+
+    save_data(data)
+
+    await interaction.response.send_message(f"🎁 Dostałeś {nagroda}$!")
+
+@bot.tree.command(name="top", description="Najbogatsi gracze 💰")
+async def top(interaction: discord.Interaction):
+    data = load_data()
+
+    ranking = sorted(data.items(), key=lambda x: x[1]["money"], reverse=True)
+
+    msg = "🏆 TOP 5:\n"
+
+    for i, (user_id, info) in enumerate(ranking[:5], start=1):
+        user = await bot.fetch_user(int(user_id))
+        msg += f"{i}. {user.name} - {info['money']}$\n"
+
+    await interaction.response.send_message(msg)
+
+@bot.tree.command(name="pay", description="Wyślij komuś kasę 💸")
+async def pay(interaction: discord.Interaction, user: discord.Member, kwota: int):
+    data = get_user(interaction.user.id)
+    sender = str(interaction.user.id)
+    receiver = str(user.id)
+
+    if kwota <= 0:
+        await interaction.response.send_message("❌ Podaj poprawną kwotę", ephemeral=True)
+        return
+
+    if data[sender]["money"] < kwota:
+        await interaction.response.send_message("❌ Nie masz tyle kasy", ephemeral=True)
+        return
+
+    data = get_user(user.id)
+
+    data[sender]["money"] -= kwota
+    data[receiver]["money"] += kwota
+
+    save_data(data)
+
+    await interaction.response.send_message(
+        f"💸 Przelałeś {kwota}$ do {user.mention}"
     )
 
 # ===== MODERACJA =====
