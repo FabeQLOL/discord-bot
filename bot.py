@@ -218,6 +218,8 @@ async def buy(interaction: discord.Interaction, item: str):
 
 # ===== MODERACJA =====
 
+from datetime import timedelta
+
 @bot.tree.command(name="warn", description="Daj ostrzeżenie ⚠️")
 async def warn(interaction: discord.Interaction, user: discord.Member, powod: str):
 
@@ -233,10 +235,26 @@ async def warn(interaction: discord.Interaction, user: discord.Member, powod: st
 
     save_data(data)
 
-    await interaction.response.send_message(
-        f"⚠️ {user.mention} dostał warna!\nPowód: {powod}\nWarny: {warns}"
-    )
+    msg = f"⚠️ {user.mention} dostał warna!\nPowód: {powod}\nWarny: {warns}"
 
+    # 🔥 SYSTEM KAR
+    try:
+        if warns == 1:
+            await user.timeout(timedelta(hours=6))
+            msg += "\n🔇 Kara: mute na 6 godzin"
+
+        elif warns == 2:
+            await user.kick(reason="2 warny")
+            msg += "\n👢 Kara: wyrzucony z serwera"
+
+        elif warns >= 3:
+            await user.ban(reason="3 warny")
+            msg += "\n🔨 Kara: BAN"
+
+    except Exception as e:
+        msg += f"\n❌ Błąd przy karze: {e}"
+
+    await interaction.response.send_message(msg)
 @bot.tree.command(name="warns", description="Sprawdź warny 📋")
 async def warns(interaction: discord.Interaction, user: discord.Member):
     data = get_user(user.id)
