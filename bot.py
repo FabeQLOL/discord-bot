@@ -80,7 +80,7 @@ async def work(interaction: discord.Interaction):
         await interaction.response.send_message("⏳ Poczekaj chwilę!", ephemeral=True)
         return
 
-    zarobek = random.randint(20, 100)
+    zarobek = random.randint(20, 80)
     data[user]["money"] += zarobek
     data[user]["last_work"] = now
 
@@ -215,6 +215,55 @@ async def buy(interaction: discord.Interaction, item: str):
 
     else:
         await interaction.response.send_message("❌ Nie ma takiego itemu", ephemeral=True)
+
+
+@bot.tree.command(name="ruletka", description="Zagraj w ruletkę 🎰")
+async def ruletka(interaction: discord.Interaction, kolor: str, kwota: int):
+
+    data = get_user(interaction.user.id)
+    user_id = str(interaction.user.id)
+
+    kolor = kolor.lower()
+
+    if kolor not in ["czerwony", "czarny", "zielony"]:
+        await interaction.response.send_message(
+            "❌ Wybierz: czerwony / czarny / zielony",
+            ephemeral=True
+        )
+        return
+
+    if kwota <= 0:
+        await interaction.response.send_message("❌ Kwota musi być > 0", ephemeral=True)
+        return
+
+    if data[user_id]["money"] < kwota:
+        await interaction.response.send_message("❌ Nie masz tyle kasy", ephemeral=True)
+        return
+
+    # 🎲 LOSOWANIE
+    import random
+    wynik = random.choices(
+        ["czerwony", "czarny", "zielony"],
+        weights=[45, 45, 10]  # szanse
+    )[0]
+
+    msg = f"🎰 Wypadło: **{wynik}**\n"
+
+    if kolor == wynik:
+        if wynik == "zielony":
+            wygrana = kwota * 14
+        else:
+            wygrana = kwota * 2
+
+        data[user_id]["money"] += wygrana
+        msg += f"💰 Wygrałeś {wygrana}$!"
+    else:
+        data[user_id]["money"] -= kwota
+        msg += f"💸 Przegrałeś {kwota}$!"
+
+    save_data(data)
+
+    await interaction.response.send_message(msg)
 
 # ===== MODERACJA =====
 
