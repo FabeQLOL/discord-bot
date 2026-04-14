@@ -179,7 +179,7 @@ async def shop(interaction: discord.Interaction):
 
     await interaction.response.send_message(msg)
 
-VIP_ROLE_ID = 11493505575932395592  # <- TU WSTAW ID ROLI
+VIP_ROLE_ID = 1493505575932395592  # <- TU WSTAW ID ROLI
 
 @bot.tree.command(name="buy", description="Kup coś ze sklepu 💸")
 async def buy(interaction: discord.Interaction, item: str):
