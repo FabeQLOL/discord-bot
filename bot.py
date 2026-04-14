@@ -99,7 +99,7 @@ async def work(interaction: discord.Interaction):
     app_commands.Choice(name="Zielony", value="zielony"),
 ])
 async def ruletka(interaction: discord.Interaction, kolor: app_commands.Choice[str], kwota: int):
-@bot.tree.command(name="ruletka", description="Zagraj w ruletkę 🎰")
+@bot.tree.command(name="ruletka", description="Zagraj w ruletkę")
 async def ruletka(interaction: discord.Interaction, liczba: int, stawka: int):
 
     if liczba < 1 or liczba > 36:
