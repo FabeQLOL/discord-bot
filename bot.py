@@ -80,40 +80,19 @@ async def work(interaction: discord.Interaction):
         await interaction.response.send_message("⏳ Poczekaj chwilę!", ephemeral=True)
         return
 
-    zarobek = random.randint(20, 80)
+    zarobek = random.randint(20, 100)
     data[user]["money"] += zarobek
     data[user]["last_work"] = now
 
     save_data(data)
 
-@bot.tree.command(name="ruletka", description="Zagraj w ruletkę 🎰")
-async def ruletka(interaction: discord.Interaction, kolor: str, kwota: int):
 
-    data = get_user(interaction.user.id)
-    user_id = str(interaction.user.id)
-
-    kolor = kolor.lower()
-
-    if kolor not in ["czerwony", "czarny", "zielony"]:
-        await interaction.response.send_message(
-            "❌ Wybierz: czerwony / czarny / zielony",
-            ephemeral=True
-        )
-        return
-
-    if kwota <= 0:
-        await interaction.response.send_message("❌ Kwota musi być > 0", ephemeral=True)
-        return
-
-    if data[user_id]["money"] < kwota:
-        await interaction.response.send_message("❌ Nie masz tyle kasy", ephemeral=True)
-        return
 
     # 🎲 LOSOWANIE
     import random
     from discord import app_commands
 
-@bot.tree.command(name="ruletka", description="Zagraj w ruletkę 🎰")
+@bot.tree.command(name="kolorowa-ruletka", description="Zagraj w ruletkę 🎰")
 @app_commands.choices(kolor=[
     app_commands.Choice(name="Czerwony", value="czerwony"),
     app_commands.Choice(name="Czarny", value="czarny"),
