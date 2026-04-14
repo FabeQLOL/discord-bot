@@ -87,18 +87,6 @@ async def work(interaction: discord.Interaction):
     save_data(data)
 
 
-
-    # 🎲 LOSOWANIE
-    import random
-    from discord import app_commands
-
-@bot.tree.command(name="kolorowa-ruletka", description="Zagraj w ruletkę 🎰")
-@app_commands.choices(kolor=[
-    app_commands.Choice(name="Czerwony", value="czerwony"),
-    app_commands.Choice(name="Czarny", value="czarny"),
-    app_commands.Choice(name="Zielony", value="zielony"),
-])
-async def ruletka(interaction: discord.Interaction, kolor: app_commands.Choice[str], kwota: int):
 @bot.tree.command(name="ruletka", description="Zagraj w ruletkę")
 async def ruletka(interaction: discord.Interaction, liczba: int, stawka: int):
 
