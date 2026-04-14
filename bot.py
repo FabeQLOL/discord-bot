@@ -72,19 +72,13 @@ async def balance(interaction: discord.Interaction):
 @bot.tree.command(name="work", description="Zarabiaj pieniądze 💼")
 async def work(interaction: discord.Interaction):
     data = get_user(interaction.user.id)
-    user = str(interaction.user.id)
 
-    now = time.time()
-
-    if now - data[user]["last_work"] < 60:  # 60 sekund cooldown
-        await interaction.response.send_message("⏳ Poczekaj chwilę!", ephemeral=True)
-        return
-
-    zarobek = random.randint(20, 80)
-    data[user]["money"] += zarobek
-    data[user]["last_work"] = now
+    zarobek = random.randint(10, 50)
+    data[str(interaction.user.id)]["money"] += zarobek
 
     save_data(data)
+
+    await interaction.response.send_message(f"Zarobiłeś {zarobek}$ 💰")
 
 
 @bot.tree.command(name="ruletka", description="Zagraj w ruletkę")
