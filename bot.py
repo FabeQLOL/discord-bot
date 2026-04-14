@@ -290,11 +290,20 @@ async def kick(interaction: discord.Interaction, user: discord.Member, reason: s
     await user.kick(reason=reason)
     await interaction.response.send_message(f"👢 Wyrzucono {user} | Powód: {reason}")
 
-@bot.tree.command(name="mute", description="Wycisza użytkownika (timeout)")
-@app_commands.checks.has_permissions(moderate_members=True)
-async def mute(interaction: discord.Interaction, user: discord.Member, minutes: int):
-    await user.timeout(discord.utils.utcnow() + discord.timedelta(minutes=minutes))
-    await interaction.response.send_message(f"🔇 Wyciszono {user} na {minutes} minut")
+from datetime import timedelta
+
+@bot.tree.command(name="mute", description="Wycisz użytkownika 🔇")
+async def mute(interaction: discord.Interaction, user: discord.Member):
+
+    if not interaction.user.guild_permissions.kick_members:
+        await interaction.response.send_message("❌ Brak permisji", ephemeral=True)
+        return
+
+    try:
+        await user.timeout(timedelta(hours=6))
+        await interaction.response.send_message(f"🔇 {user.mention} wyciszony na 6h")
+    except Exception as e:
+        await interaction.response.send_message(f"❌ Błąd: {e}", ephemeral=True)
 
 # ===== BŁĘDY (np. brak permisji) =====
 
