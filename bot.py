@@ -584,48 +584,44 @@ async def stats(interaction: discord.Interaction):
 @bot.tree.command(name="jackpot", description="Zagraj w jackpot 🎰")
 async def jackpot(interaction: discord.Interaction, amount: int):
 
-    user_id = str(interaction.user.id)
-    data = load_balance()
+    await interaction.response.defer()
 
-    # jeśli user nie istnieje
-    if user_id not in data:
-        data[user_id] = 1000  # startowa kasa
+    try:
+        data = load_balance()
+        user_id = str(interaction.user.id)
 
-    # sprawdź czy ma kasę
-    if amount <= 0:
-        await interaction.response.send_message("❌ Podaj poprawną kwotę!", ephemeral=True)
-        return
+        if user_id not in data:
+            data[user_id] = 1000
 
-    if data[user_id] < amount:
-        await interaction.response.send_message("❌ Nie masz tyle kasy!", ephemeral=True)
-        return
+        if amount <= 0:
+            await interaction.followup.send("❌ Zła kwota!")
+            return
 
-    # zabierz kasę
-    data[user_id] -= amount
+        if data[user_id] < amount:
+            await interaction.followup.send("❌ Nie masz kasy!")
+            return
 
-    # LOSOWANIE 🎰
-    win_chance = random.randint(1, 100)
+        data[user_id] -= amount
 
-    if win_chance <= 40:
-        # przegrana
-        wynik = f"💀 Przegrałeś {amount}$"
-    elif win_chance <= 80:
-        # mała wygrana
-        win = int(amount * 1.5)
-        data[user_id] += win
-        wynik = f"🤑 Wygrałeś {win}$"
-    else:
-        # JACKPOT 🔥
-        win = amount * 3
-        data[user_id] += win
-        wynik = f"🎰 JACKPOT!!! Wygrałeś {win}$"
+        import random
+        roll = random.randint(1, 100)
 
-    save_balance(data)
+        if roll <= 50:
+            wynik = f"💀 Przegrałeś {amount}$"
+        else:
+            win = amount * 2
+            data[user_id] += win
+            wynik = f"🤑 Wygrałeś {win}$"
 
-    await interaction.response.send_message(
-        f"🎰 **JACKPOT** 🎰\n{wynik}\n💰 Twój balans: {data[user_id]}$"
-    )
+        save_balance(data)
 
+        await interaction.followup.send(
+            f"🎰 {wynik}\n💰 Masz teraz {data[user_id]}$"
+        )
+
+    except Exception as e:
+        await interaction.followup.send(f"❌ Błąd: {e}")
+        
 # ===== MODERACJA =====
 
 from datetime import timedelta
