@@ -45,7 +45,8 @@ def get_user(user_id):
             "warns": 0,
             "exp": 0,
             "level": 1
-
+            "cases": 0,
+"inventory": []
         }
         save_data(data)
     return data
@@ -338,6 +339,79 @@ async def sloty(interaction: discord.Interaction, kwota: int):
 async def jackpot_cmd(interaction: discord.Interaction):
     global jackpot
     await interaction.response.send_message(f"🏆 Jackpot wynosi: {jackpot}$")
+
+@bot.tree.command(name="buycase", description="Kup skrzynkę 🎁")
+async def buycase(interaction: discord.Interaction):
+
+    data = get_user(interaction.user.id)
+    user_id = str(interaction.user.id)
+
+    cena = 100
+
+    if data[user_id]["money"] < cena:
+        await interaction.response.send_message("❌ Nie masz kasy", ephemeral=True)
+        return
+
+    data[user_id]["money"] -= cena
+    data[user_id]["cases"] += 1
+
+    save_data(data)
+
+    await interaction.response.send_message("🎁 Kupiłeś skrzynkę!")
+
+@bot.tree.command(name="opencase", description="Otwórz skrzynkę 🎰")
+async def opencase(interaction: discord.Interaction):
+
+    data = get_user(interaction.user.id)
+    user_id = str(interaction.user.id)
+
+    if data[user_id]["cases"] <= 0:
+        await interaction.response.send_message("❌ Nie masz skrzynek", ephemeral=True)
+        return
+
+    data[user_id]["cases"] -= 1
+
+    # 🎲 losowanie rarity
+    rarity = random.choices(
+        ["common", "rare", "epic", "legendary", "knife"],
+        weights=[50, 30, 15, 4, 1]
+    )[0]
+
+    skiny = {
+        "common": ["P250 Sand Dune", "Glock-18 Groundwater"],
+        "rare": ["AK-47 Elite Build", "M4A1-S Decimator"],
+        "epic": ["AWP Neo-Noir", "AK-47 Neon Rider"],
+        "legendary": ["M4A4 Howl", "AK-47 Fire Serpent"],
+        "knife": ["Karambit Doppler", "Butterfly Fade"]
+    }
+
+    item = random.choice(skiny[rarity])
+
+    # 💰 wartość
+    values = {
+        "common": 20,
+        "rare": 80,
+        "epic": 200,
+        "legendary": 1000,
+        "knife": 5000
+    }
+
+    value = values[rarity]
+
+    data[user_id]["inventory"].append({
+        "name": item,
+        "rarity": rarity,
+        "value": value
+    })
+
+    save_data(data)
+
+    await interaction.response.send_message(
+        f"🎰 Otworzyłeś skrzynkę!\n"
+        f"🎁 {item}\n"
+        f"💎 Rzadkość: {rarity}\n"
+        f"💰 Wartość: {value}$"
+    )
 
 # ===== MODERACJA =====
 
