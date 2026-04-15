@@ -99,17 +99,12 @@ async def coinflip(interaction: discord.Interaction):
     wynik = random.choice(["Orzeł 🦅", "Reszka 🪙"])
     await interaction.response.send_message(wynik)
 
-bot.tree.command(name="balance", description="Sprawdź swój stan konta 💰")
+@bot.tree.command(name="balance", description="Stan konta")
 async def balance(interaction: discord.Interaction):
     data, user_id = get_user(interaction.user.id)
 
-    money = data[user_id]["money"]
-    bank = data[user_id]["bank"]
-
     await interaction.response.send_message(
-        f"💰 **Twój stan konta:**\n"
-        f"💵 Gotówka: {money}$\n"
-        f"🏦 Bank: {bank}$"
+        str(data[user_id]["money"]) + "$"
     )
 
 @bot.tree.command(name="work", description="Zarabiaj pieniądze 💼")
