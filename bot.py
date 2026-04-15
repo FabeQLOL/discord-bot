@@ -56,6 +56,14 @@ def get_user(user_id):
 
     return data, uid
 
+def load_balance():
+    with open("balance.json", "r") as f:
+        return json.load(f)
+
+def save_balance(data):
+    with open("balance.json", "w") as f:
+        json.dump(data, f)
+
 @bot.event
 async def on_message(message):
     if message.author.bot:
@@ -571,6 +579,51 @@ async def stats(interaction: discord.Interaction):
     embed.add_field(name="🔊 Głosowe", value=voice_channels)
 
     await interaction.response.send_message(embed=embed)
+
+@bot.tree.command(name="jackpot", description="Zagraj w jackpot 🎰")
+async def jackpot(interaction: discord.Interaction, amount: int):
+
+    user_id = str(interaction.user.id)
+    data = load_balance()
+
+    # jeśli user nie istnieje
+    if user_id not in data:
+        data[user_id] = 1000  # startowa kasa
+
+    # sprawdź czy ma kasę
+    if amount <= 0:
+        await interaction.response.send_message("❌ Podaj poprawną kwotę!", ephemeral=True)
+        return
+
+    if data[user_id] < amount:
+        await interaction.response.send_message("❌ Nie masz tyle kasy!", ephemeral=True)
+        return
+
+    # zabierz kasę
+    data[user_id] -= amount
+
+    # LOSOWANIE 🎰
+    win_chance = random.randint(1, 100)
+
+    if win_chance <= 40:
+        # przegrana
+        wynik = f"💀 Przegrałeś {amount}$"
+    elif win_chance <= 80:
+        # mała wygrana
+        win = int(amount * 1.5)
+        data[user_id] += win
+        wynik = f"🤑 Wygrałeś {win}$"
+    else:
+        # JACKPOT 🔥
+        win = amount * 3
+        data[user_id] += win
+        wynik = f"🎰 JACKPOT!!! Wygrałeś {win}$"
+
+    save_balance(data)
+
+    await interaction.response.send_message(
+        f"🎰 **JACKPOT** 🎰\n{wynik}\n💰 Twój balans: {data[user_id]}$"
+    )
 
 # ===== MODERACJA =====
 
