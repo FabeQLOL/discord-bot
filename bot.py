@@ -18,9 +18,11 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 @bot.event
 async def on_ready():
     print(f"Zalogowano jako {bot.user}")
+
     try:
+        bot.tree.clear_commands()  # 🔥 usuwa duplikaty
         synced = await bot.tree.sync()
-        print(f"Zsynchronizowano {len(synced)} komend")
+        print(f"Zsynchronizowano {len(synced)} komend 😎")
     except Exception as e:
         print(e)
 
@@ -98,6 +100,10 @@ async def on_ready():
 
 @bot.tree.interaction_check
 async def global_check(interaction:discord.Interaction):
+    return True
+
+@bot.tree.interaction_check
+async def global_check(interaction: discord.Interaction):
     return True
 
 # ===== KOMENDY =====
@@ -369,11 +375,6 @@ async def sloty(interaction: discord.Interaction, kwota: int):
     save_data(data)
 
     await interaction.response.send_message(msg)
-
-@bot.tree.command(name="jackpot", description="Sprawdź jackpot 🏆")
-async def jackpot_cmd(interaction: discord.Interaction):
-    global jackpot
-    await interaction.response.send_message(f"🏆 Jackpot wynosi: {jackpot}$")
 
 @bot.tree.command(name="buycase", description="Kup skrzynkę 🎁")
 async def buycase(interaction: discord.Interaction):
