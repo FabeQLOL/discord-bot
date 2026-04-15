@@ -522,7 +522,6 @@ async def inventory(interaction: discord.Interaction):
         msg += f"{i}. {item['name']} ({item['rarity']}) - {item['value']}$\n"
 
     await interaction.response.send_message(msg)
-
 @bot.tree.command(name="sell", description="Sprzedaj item 💸")
 async def sell(interaction: discord.Interaction, index: int):
 
