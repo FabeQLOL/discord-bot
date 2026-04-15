@@ -89,7 +89,7 @@ async def on_ready():
     print("Komendy zsynchronizowane")
 
 @bot.tree.interaction_check
-async def global_check(interation:discord.Intreraction):
+async def global_check(interaction:discord.Interaction):
     return True
 
 # ===== KOMENDY =====
