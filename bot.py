@@ -508,17 +508,15 @@ async def interest(interaction: discord.Interaction):
 
 @bot.tree.command(name="inventory", description="Twój ekwipunek 🎒")
 async def inventory(interaction: discord.Interaction):
-
-   data, user_id = get_user(interaction.user.id)
-    user_id = str(interaction.user.id)
+    data, user_id = get_user(interaction.user.id)
 
     inv = data[user_id]["inventory"]
 
     if not inv:
-        await interaction.response.send_message("❌ Pusty ekwipunek")
+        await interaction.response.send_message("❌ Twój ekwipunek jest pusty")
         return
 
-    msg = "🎒 Twój ekwipunek:\n"
+    msg = "🎒 **Twój ekwipunek:**\n\n"
 
     for i, item in enumerate(inv, start=1):
         msg += f"{i}. {item['name']} ({item['rarity']}) - {item['value']}$\n"
