@@ -101,15 +101,15 @@ async def coinflip(interaction: discord.Interaction):
 
 @bot.tree.command(name="balance", description="Sprawdź swój stan konta 💰")
 async def balance(interaction: discord.Interaction):
-    data = get_user(interaction.user.id)
-    money = data[str(interaction.user.id)]["money"]
+    data, user_id = get_user(interaction.user.id)
+money = data[user_id]["money"]
 
     await interaction.response.send_message(f"Masz {money}$ 💰")
 
 @bot.tree.command(name="work", description="Zarabiaj pieniądze 💼")
 async def work(interaction: discord.Interaction):
 
-    data, user_id = get_user(interaction.user.id)
+   data, user_id = get_user(interaction.user.id)
 
     zarobek = random.randint(10, 50)
 
@@ -128,7 +128,7 @@ async def ruletka(interaction: discord.Interaction, liczba: int, stawka: int):
         await interaction.response.send_message("Liczba 1-36 ❌", ephemeral=True)
         return
 
-    data = get_user(interaction.user.id)
+    data, user_id = get_user(interaction.user.id)
     user_id = str(interaction.user.id)
 
     if data[user_id]["money"] < stawka:
@@ -153,12 +153,12 @@ async def ruletka(interaction: discord.Interaction, liczba: int, stawka: int):
 
 @bot.tree.command(name="daily", description="Codzienna nagroda 🎁")
 async def daily(interaction: discord.Interaction):
-    data = get_user(interaction.user.id)
+    data, user_id = get_user(interaction.user.id)
     user = str(interaction.user.id)
 
     now = time.time()
 
-    if now - data[user]["last_daily"] < 86400:
+    if now - data[user_id]["last_daily"] < 86400:
         await interaction.response.send_message("❌ Już odebrałeś daily!", ephemeral=True)
         return
 
@@ -186,7 +186,7 @@ async def top(interaction: discord.Interaction):
 
 @bot.tree.command(name="pay", description="Wyślij komuś kasę 💸")
 async def pay(interaction: discord.Interaction, user: discord.Member, kwota: int):
-    data = get_user(interaction.user.id)
+    data, user_id = get_user(interaction.user.id)
     sender = str(interaction.user.id)
     receiver = str(user.id)
 
@@ -223,7 +223,7 @@ VIP_ROLE_ID = 1493505575932395592  # <- TU WSTAW ID ROLI
 
 @bot.tree.command(name="buy", description="Kup coś ze sklepu 💸")
 async def buy(interaction: discord.Interaction, item: str):
-    data = get_user(interaction.user.id)
+    data, user_id = get_user(interaction.user.id)
     user_id = str(interaction.user.id)
 
     if item.lower() == "vip":
@@ -256,7 +256,7 @@ async def level(interaction: discord.Interaction, user: discord.Member = None):
     if user is None:
         user = interaction.user
 
-    data = get_user(user.id)
+    data, user_id = get_user(interaction.user.id)
     user_id = str(user.id)
 
     lvl = data[user_id]["level"]
@@ -287,7 +287,7 @@ async def top(interaction: discord.Interaction):
 @bot.tree.command(name="allin", description="All-in 💀 50/50")
 async def allin(interaction: discord.Interaction):
 
-    data = get_user(interaction.user.id)
+    data, user_id = get_user(interaction.user.id)
     user_id = str(interaction.user.id)
 
     kasa = data[user_id]["money"]
@@ -313,7 +313,7 @@ async def allin(interaction: discord.Interaction):
 @bot.tree.command(name="sloty", description="Automaty 🎰")
 async def sloty(interaction: discord.Interaction, kwota: int):
 
-    data = get_user(interaction.user.id)
+    data, user_id = get_user(interaction.user.id)
     user_id = str(interaction.user.id)
 
     if kwota <= 0 or data[user_id]["money"] < kwota:
@@ -351,7 +351,7 @@ async def jackpot_cmd(interaction: discord.Interaction):
 @bot.tree.command(name="buycase", description="Kup skrzynkę 🎁")
 async def buycase(interaction: discord.Interaction):
 
-    data = get_user(interaction.user.id)
+    data, user_id = get_user(interaction.user.id)
     user_id = str(interaction.user.id)
 
     cena = 100
@@ -370,7 +370,7 @@ async def buycase(interaction: discord.Interaction):
 @bot.tree.command(name="opencase", description="Otwórz skrzynkę 🎰")
 async def opencase(interaction: discord.Interaction):
 
-    data = get_user(interaction.user.id)
+    data, user_id = get_user(interaction.user.id)
     user_id = str(interaction.user.id)
 
     if data[user_id]["cases"] <= 0:
@@ -424,7 +424,7 @@ async def opencase(interaction: discord.Interaction):
 @bot.tree.command(name="deposit", description="Wpłać kasę do banku 🏦")
 async def deposit(interaction: discord.Interaction, kwota: int):
 
-    data = get_user(interaction.user.id)
+    data, user_id = get_user(interaction.user.id)
     user_id = str(interaction.user.id)
 
     if kwota <= 0 or data[user_id]["money"] < kwota:
@@ -443,7 +443,7 @@ async def deposit(interaction: discord.Interaction, kwota: int):
 @bot.tree.command(name="withdraw", description="Wypłać kasę z banku 💸")
 async def withdraw(interaction: discord.Interaction, kwota: int):
 
-    data = get_user(interaction.user.id)
+    data, user_id = get_user(interaction.user.id)
     user_id = str(interaction.user.id)
 
     if kwota <= 0 or data[user_id]["bank"] < kwota:
@@ -462,7 +462,7 @@ async def withdraw(interaction: discord.Interaction, kwota: int):
 @bot.tree.command(name="interest", description="Odbierz odsetki 💰")
 async def interest(interaction: discord.Interaction):
 
-    data = get_user(interaction.user.id)
+    data, user_id = get_user(interaction.user.id)
     user_id = str(interaction.user.id)
 
     now = time.time()
@@ -493,7 +493,7 @@ async def interest(interaction: discord.Interaction):
 @bot.tree.command(name="inventory", description="Twój ekwipunek 🎒")
 async def inventory(interaction: discord.Interaction):
 
-    data = get_user(interaction.user.id)
+   data, user_id = get_user(interaction.user.id)
     user_id = str(interaction.user.id)
 
     inv = data[user_id]["inventory"]
@@ -512,7 +512,7 @@ async def inventory(interaction: discord.Interaction):
 @bot.tree.command(name="sell", description="Sprzedaj item 💸")
 async def sell(interaction: discord.Interaction, index: int):
 
-    data = get_user(interaction.user.id)
+   data, user_id = get_user(interaction.user.id)
     user_id = str(interaction.user.id)
 
     inv = data[user_id]["inventory"]
@@ -564,7 +564,7 @@ async def warn(interaction: discord.Interaction, user: discord.Member, powod: st
         await interaction.response.send_message("❌ Nie masz permisji", ephemeral=True)
         return
 
-    data = get_user(user.id)
+    data, user_id = get_user(interaction.user.id)
     user_id = str(user.id)
 
     data[user_id]["warns"] += 1
@@ -610,7 +610,7 @@ async def clearwarns(interaction: discord.Interaction, user: discord.Member):
         await interaction.response.send_message("❌ Nie masz permisji", ephemeral=True)
         return
 
-    data = get_user(user.id)
+    data, user_id = get_user(interaction.user.id)
     user_id = str(user.id)
 
     data[user_id]["warns"] = 0
@@ -670,7 +670,7 @@ async def unmute(interaction: discord.Interaction, user: discord.Member):
             ephemeral=True
         )
 
-bot.tree.command(name="unban", description="Odbanuj użytkownika 🔓")
+@bot.tree.command(name="unban", description="Odbanuj użytkownika 🔓")
 async def unban(interaction: discord.Interaction, user_id: str):
 
     if not interaction.user.guild_permissions.ban_members:
