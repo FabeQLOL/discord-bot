@@ -274,6 +274,65 @@ async def top(interaction: discord.Interaction):
 
     await interaction.response.send_message(msg)
 
+@bot.tree.command(name="allin", description="All-in 💀 50/50")
+async def allin(interaction: discord.Interaction):
+
+    data = get_user(interaction.user.id)
+    user_id = str(interaction.user.id)
+
+    kasa = data[user_id]["money"]
+
+    if kasa <= 0:
+        await interaction.response.send_message("❌ Nie masz kasy", ephemeral=True)
+        return
+
+    import random
+    win = random.choice([True, False])
+
+    if win:
+        data[user_id]["money"] *= 2
+        msg = f"💰 WYGRANA! Masz teraz {data[user_id]['money']}$"
+    else:
+        data[user_id]["money"] = 0
+        msg = "💀 PRZEGRANA! Straciłeś wszystko..."
+
+    save_data(data)
+
+    await interaction.response.send_message(msg)
+
+@bot.tree.command(name="sloty", description="Automaty 🎰")
+async def sloty(interaction: discord.Interaction, kwota: int):
+
+    data = get_user(interaction.user.id)
+    user_id = str(interaction.user.id)
+
+    if kwota <= 0 or data[user_id]["money"] < kwota:
+        await interaction.response.send_message("❌ Zła kwota", ephemeral=True)
+        return
+
+    import random
+    symbole = ["🍒", "🍋", "🍉", "💎"]
+
+    wynik = [random.choice(symbole) for _ in range(3)]
+
+    msg = " | ".join(wynik) + "\n"
+
+    if wynik[0] == wynik[1] == wynik[2]:
+        wygrana = kwota * 5
+        data[user_id]["money"] += wygrana
+        msg += f"💰 JACKPOT! +{wygrana}$"
+    elif wynik[0] == wynik[1] or wynik[1] == wynik[2]:
+        wygrana = kwota * 2
+        data[user_id]["money"] += wygrana
+        msg += f"💰 Wygrana! +{wygrana}$"
+    else:
+        data[user_id]["money"] -= kwota
+        msg += f"💸 Przegrana -{kwota}$"
+
+    save_data(data)
+
+    await interaction.response.send_message(msg)
+
 # ===== MODERACJA =====
 
 from datetime import timedelta
