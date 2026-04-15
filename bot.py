@@ -715,25 +715,25 @@ async def mod_error(interaction: discord.Interaction, error):
         await interaction.response.send_message("❌ Wystąpił błąd", ephemeral=True)
 
 @bot.tree.interaction_check
-async def global_check(interaction:discord.Interaction):
+async def global_check(interaction: discord.Interaction):
 
-    if interaction.guild is none:
-        await
-interaction.response.send_message((
-    "Nie możesz używać FabBota poza serwerem!",
-        ephemeral=True
-)
-    return False
+    # Jeśli ktoś używa bota w DM
+    if interaction.guild is None:
+        await interaction.response.send_message(
+            "Nie możesz używać FabBota poza serwerem!",
+            ephemeral=True
+        )
+        return False
 
-if interaction.guild.id != ALLOWED_GUILD_ID:
-               await
-                    interaction.response.send_message("Nie masz permisji do korzystania z FabBot, \n"
-                                                      "napisz do fabeqgg po więcej informacji",
-                                                                                              ephemeral=True
-                                                     )
-                                  return False
+    # Jeśli ktoś jest na innym serwerze
+    if interaction.guild.id != ALLOWED_GUILD_ID:
+        await interaction.response.send_message(
+            "Nie masz permisji do korzystania z FabBota,\nnapisz do fabeqgg po więcej informacji",
+            ephemeral=True
+        )
+        return False
 
-                            return True
+    return True
 
 # ===== TOKEN =====
 
