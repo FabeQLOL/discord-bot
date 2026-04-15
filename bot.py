@@ -734,7 +734,7 @@ async def global_check(interaction: discord.Interaction):
         return False
 
     return True
-
+    
 # ===== TOKEN =====
 
 token = os.getenv("TOKEN_DISCORD")
