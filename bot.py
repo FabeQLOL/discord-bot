@@ -44,7 +44,9 @@ def get_user(user_id):
             "last_daily": 0,
             "warns": 0,
             "exp": 0,
-            "level": 1
+            "level": 1,
+            "bank": 0,
+"last_interest": 0,
             "cases": 0,
 "inventory": []
         }
@@ -411,6 +413,75 @@ async def opencase(interaction: discord.Interaction):
         f"🎁 {item}\n"
         f"💎 Rzadkość: {rarity}\n"
         f"💰 Wartość: {value}$"
+    )
+
+@bot.tree.command(name="deposit", description="Wpłać kasę do banku 🏦")
+async def deposit(interaction: discord.Interaction, kwota: int):
+
+    data = get_user(interaction.user.id)
+    user_id = str(interaction.user.id)
+
+    if kwota <= 0 or data[user_id]["money"] < kwota:
+        await interaction.response.send_message("❌ Zła kwota", ephemeral=True)
+        return
+
+    data[user_id]["money"] -= kwota
+    data[user_id]["bank"] += kwota
+
+    save_data(data)
+
+    await interaction.response.send_message(
+        f"🏦 Wpłaciłeś {kwota}$ do banku!"
+    )
+
+@bot.tree.command(name="withdraw", description="Wypłać kasę z banku 💸")
+async def withdraw(interaction: discord.Interaction, kwota: int):
+
+    data = get_user(interaction.user.id)
+    user_id = str(interaction.user.id)
+
+    if kwota <= 0 or data[user_id]["bank"] < kwota:
+        await interaction.response.send_message("❌ Zła kwota", ephemeral=True)
+        return
+
+    data[user_id]["bank"] -= kwota
+    data[user_id]["money"] += kwota
+
+    save_data(data)
+
+    await interaction.response.send_message(
+        f"💸 Wypłaciłeś {kwota}$ z banku!"
+    )
+
+@bot.tree.command(name="interest", description="Odbierz odsetki 💰")
+async def interest(interaction: discord.Interaction):
+
+    data = get_user(interaction.user.id)
+    user_id = str(interaction.user.id)
+
+    now = time.time()
+
+    # ⏳ cooldown 1h
+    if now - data[user_id].get("last_interest", 0) < 3600:
+        await interaction.response.send_message("⏳ Poczekaj 1h", ephemeral=True)
+        return
+
+    bank = data[user_id]["bank"]
+
+    if bank <= 0:
+        await interaction.response.send_message("❌ Nie masz nic w banku", ephemeral=True)
+        return
+
+    # 💰 2% odsetek
+    profit = int(bank * 0.02)
+
+    data[user_id]["bank"] += profit
+    data[user_id]["last_interest"] = now
+
+    save_data(data)
+
+    await interaction.response.send_message(
+        f"💰 Otrzymałeś {profit}$ odsetek!"
     )
 
 # ===== MODERACJA =====
