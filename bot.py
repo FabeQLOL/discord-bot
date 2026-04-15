@@ -83,7 +83,14 @@ async def on_message(message):
     save_data(data)
 
     await bot.process_commands(message)  # ważne!
+@bot.event
+async def on_ready():
+    await bot.tree.sync()
+    print("Komendy zsynchronizowane")
 
+@bot.tree.interaction_check
+async def global_check(interation:discord.Intreraction):
+    return True
 
 # ===== KOMENDY =====
 
