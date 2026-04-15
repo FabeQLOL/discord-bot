@@ -12,7 +12,6 @@ intents = discord.Intents.default()
 intents.members = True  # WAŻNE do ban/kick/mute
 
 bot = commands.Bot(command_prefix="!", intents=intents)
-tree = bot.tree
 
 # ===== READY =====
 @bot.event
@@ -85,10 +84,6 @@ async def on_message(message):
 
     await bot.process_commands(message)  # ważne!
 
-@bot.event
-async def on_ready():
-    await bot.tree.sync()
-    print("SYNC OK")
 
 # ===== KOMENDY =====
 
