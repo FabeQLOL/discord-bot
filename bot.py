@@ -7,15 +7,12 @@ import asyncio
 import json
 import time
 
-bot = commands.Bot(command_prefix="!", intents=intents)
-tree = bot.tree
-
-print("BOT STARTED")
 
 intents = discord.Intents.default()
 intents.members = True  # WAŻNE do ban/kick/mute
 
 bot = commands.Bot(command_prefix="!", intents=intents)
+tree = bot.tree
 
 # ===== READY =====
 @bot.event
