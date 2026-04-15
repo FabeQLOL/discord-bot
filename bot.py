@@ -45,6 +45,8 @@ def get_user(user_id):
             "warns": 0,
             "exp": 0,
             "level": 1
+            "bank": 0,
+            "last_interest": 0
         }
         save_data(data)
     return data
@@ -332,6 +334,49 @@ async def sloty(interaction: discord.Interaction, kwota: int):
     save_data(data)
 
     await interaction.response.send_message(msg)
+
+@bot.tree.command(name="jackpot", description="Sprawdź jackpot 🏆")
+async def jackpot_cmd(interaction: discord.Interaction):
+    global jackpot
+    await interaction.response.send_message(f"🏆 Jackpot wynosi: {jackpot}$")
+
+@bot.tree.command(name="deposit", description="Wpłać kasę do banku 🏦")
+async def deposit(interaction: discord.Interaction, kwota: int):
+
+    data = get_user(interaction.user.id)
+    user_id = str(interaction.user.id)
+
+    if kwota <= 0 or data[user_id]["money"] < kwota:
+        await interaction.response.send_message("❌ Zła kwota", ephemeral=True)
+        return
+
+    data[user_id]["money"] -= kwota
+    data[user_id]["bank"] += kwota
+
+    save_data(data)
+
+    await interaction.response.send_message(
+        f"🏦 Wpłaciłeś {kwota}$ do banku!"
+    )
+
+@bot.tree.command(name="withdraw", description="Wypłać kasę z banku 💸")
+async def withdraw(interaction: discord.Interaction, kwota: int):
+
+    data = get_user(interaction.user.id)
+    user_id = str(interaction.user.id)
+
+    if kwota <= 0 or data[user_id]["bank"] < kwota:
+        await interaction.response.send_message("❌ Zła kwota", ephemeral=True)
+        return
+
+    data[user_id]["bank"] -= kwota
+    data[user_id]["money"] += kwota
+
+    save_data(data)
+
+    await interaction.response.send_message(
+        f"💸 Wypłaciłeś {kwota}$ z banku!"
+    )
 
 # ===== MODERACJA =====
 
