@@ -525,6 +525,28 @@ async def sell(interaction: discord.Interaction, index: int):
         f"💰 Sprzedałeś {item['name']} za {item['value']}$"
     )
 
+@bot.tree.command(name="stats", description="Statystyki serwera 📊")
+async def stats(interaction: discord.Interaction):
+
+    guild = interaction.guild
+
+    users = len([m for m in guild.members if not m.bot])
+    bots = len([m for m in guild.members if m.bot])
+    text_channels = len(guild.text_channels)
+    voice_channels = len(guild.voice_channels)
+
+    embed = discord.Embed(
+        title="📊 Statystyki serwera",
+        color=discord.Color.blue()
+    )
+
+    embed.add_field(name="👥 Użytkownicy", value=users)
+    embed.add_field(name="🤖 Boty", value=bots)
+    embed.add_field(name="💬 Tekstowe", value=text_channels)
+    embed.add_field(name="🔊 Głosowe", value=voice_channels)
+
+    await interaction.response.send_message(embed=embed)
+
 # ===== MODERACJA =====
 
 from datetime import timedelta
