@@ -45,8 +45,7 @@ def get_user(user_id):
             "warns": 0,
             "exp": 0,
             "level": 1
-            "bank": 0,
-            "last_interest": 0
+
         }
         save_data(data)
     return data
