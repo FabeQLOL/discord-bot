@@ -726,7 +726,7 @@ interaction.response.send_message((
     return False
 
 if interaction.guild.id != ALLOWED_GUILD_ID:
-            await
+               await
                     interaction.response.send_message("Nie masz permisji do korzystania z FabBot, \n"
                                                       "napisz do fabeqgg po więcej informacji",
                                                                                               ephemeral=True
