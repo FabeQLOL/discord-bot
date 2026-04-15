@@ -522,16 +522,19 @@ async def inventory(interaction: discord.Interaction):
         msg += f"{i}. {item['name']} ({item['rarity']}) - {item['value']}$\n"
 
     await interaction.response.send_message(msg)
+    
 @bot.tree.command(name="sell", description="Sprzedaj item 💸")
 async def sell(interaction: discord.Interaction, index: int):
-
-   data, user_id = get_user(interaction.user.id)
-    user_id = str(interaction.user.id)
+    data, user_id = get_user(interaction.user.id)
 
     inv = data[user_id]["inventory"]
 
+    if not inv:
+        await interaction.response.send_message("❌ Twój ekwipunek jest pusty", ephemeral=True)
+        return
+
     if index <= 0 or index > len(inv):
-        await interaction.response.send_message("❌ Zły numer", ephemeral=True)
+        await interaction.response.send_message("❌ Zły numer itemu", ephemeral=True)
         return
 
     item = inv.pop(index - 1)
@@ -541,7 +544,7 @@ async def sell(interaction: discord.Interaction, index: int):
     save_data(data)
 
     await interaction.response.send_message(
-        f"💰 Sprzedałeś {item['name']} za {item['value']}$"
+        f"💰 Sprzedałeś **{item['name']}** za **{item['value']}$**"
     )
 
 @bot.tree.command(name="stats", description="Statystyki serwera 📊")
