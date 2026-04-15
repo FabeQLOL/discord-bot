@@ -484,6 +484,47 @@ async def interest(interaction: discord.Interaction):
         f"💰 Otrzymałeś {profit}$ odsetek!"
     )
 
+@bot.tree.command(name="inventory", description="Twój ekwipunek 🎒")
+async def inventory(interaction: discord.Interaction):
+
+    data = get_user(interaction.user.id)
+    user_id = str(interaction.user.id)
+
+    inv = data[user_id]["inventory"]
+
+    if not inv:
+        await interaction.response.send_message("❌ Pusty ekwipunek")
+        return
+
+    msg = "🎒 Twój ekwipunek:\n"
+
+    for i, item in enumerate(inv, start=1):
+        msg += f"{i}. {item['name']} ({item['rarity']}) - {item['value']}$\n"
+
+    await interaction.response.send_message(msg)
+
+@bot.tree.command(name="sell", description="Sprzedaj item 💸")
+async def sell(interaction: discord.Interaction, index: int):
+
+    data = get_user(interaction.user.id)
+    user_id = str(interaction.user.id)
+
+    inv = data[user_id]["inventory"]
+
+    if index <= 0 or index > len(inv):
+        await interaction.response.send_message("❌ Zły numer", ephemeral=True)
+        return
+
+    item = inv.pop(index - 1)
+
+    data[user_id]["money"] += item["value"]
+
+    save_data(data)
+
+    await interaction.response.send_message(
+        f"💰 Sprzedałeś {item['name']} za {item['value']}$"
+    )
+
 # ===== MODERACJA =====
 
 from datetime import timedelta
