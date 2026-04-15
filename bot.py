@@ -36,7 +36,6 @@ def save_data(data):
 
 def get_user(user_id):
     data = load_data()
-
     uid = str(user_id)
 
     if uid not in data:
@@ -109,15 +108,18 @@ async def balance(interaction: discord.Interaction):
 
 @bot.tree.command(name="work", description="Zarabiaj pieniądze 💼")
 async def work(interaction: discord.Interaction):
-    data = get_user(interaction.user.id)
+
+    data, user_id = get_user(interaction.user.id)
 
     zarobek = random.randint(10, 50)
-    data[str(interaction.user.id)]["money"] += zarobek
+
+    data[user_id]["money"] += zarobek
 
     save_data(data)
 
-    await interaction.response.send_message(f"Zarobiłeś {zarobek}$ 💰")
-
+    await interaction.response.send_message(
+        f"💼 Pracowałeś i zarobiłeś {zarobek}$ 💰"
+    )
 
 @bot.tree.command(name="ruletka", description="Zagraj w ruletkę")
 async def ruletka(interaction: discord.Interaction, liczba: int, stawka: int):
