@@ -7,6 +7,9 @@ import asyncio
 import json
 import time
 
+bot = commands.Bot(command_prefix="!", intents=intents)
+tree = bot.tree
+
 print("BOT STARTED")
 
 intents = discord.Intents.default()
@@ -37,8 +40,11 @@ def save_data(data):
 
 def get_user(user_id):
     data = load_data()
-    if str(user_id) not in data:
-        data[str(user_id)] = {
+
+    uid = str(user_id)
+
+    if uid not in data:
+        data[uid] = {
             "money": 100,
             "last_work": 0,
             "last_daily": 0,
@@ -46,12 +52,13 @@ def get_user(user_id):
             "exp": 0,
             "level": 1,
             "bank": 0,
-"last_interest": 0,
+            "last_interest": 0,
             "cases": 0,
-"inventory": []
+            "inventory": []
         }
         save_data(data)
-    return data
+
+    return data, uid
 
 @bot.event
 async def on_message(message):
@@ -80,6 +87,11 @@ async def on_message(message):
     save_data(data)
 
     await bot.process_commands(message)  # ważne!
+
+@bot.event
+async def on_ready():
+    await bot.tree.sync()
+    print("SYNC OK")
 
 # ===== KOMENDY =====
 
