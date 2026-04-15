@@ -15,6 +15,22 @@ intents.members = True  # WAŻNE do ban/kick/mute
 bot = commands.Bot(command_prefix="!", intents=intents)
 
 # ===== READY =====
+OWNER_ID = 1490030330084720892 # <- tutaj wstaw swoje ID Discord
+
+@bot.event
+async def on_member_join(member: discord.Member):
+    owner = await bot.fetch_user(OWNER_ID)
+
+    try:
+        await owner.send(
+            f"📢 Nowy użytkownik wszedł na serwer!\n\n"
+            f"👤 Nick: {member.name}\n"
+            f"🆔 ID: {member.id}\n"
+            f"📅 Konto utworzone: {member.created_at.strftime('%Y-%m-%d')}"
+        )
+    except:
+        print("Nie mogę wysłać DM do właściciela.")
+
 @bot.event
 async def on_ready():
     print(f"Zalogowano jako {bot.user}")
