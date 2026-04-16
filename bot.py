@@ -129,8 +129,10 @@ async def global_check(interaction: discord.Interaction):
     return True
 
 
-bot = commands.Bot(command_prefix="!", intents=intents)
+intents = discord.Intents.default()
+intents.message_content = True
 
+bot = commands.Bot(command_prefix="/", intents=intents)
 
 # ===== KOMENDY =====
 
