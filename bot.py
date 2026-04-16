@@ -10,6 +10,8 @@ import string
 
 ALLOWED_GUILD_ID = 1492852181303431289
 
+bot = commands.Bot(command_prefix="!", intents=intents)
+
 premium_users = set()
 
 
@@ -86,7 +88,6 @@ def is_premium(user_id):
 intents = discord.Intents.default()
 intents.members = True  # WAŻNE do ban/kick/mute
 
-bot = commands.Bot(command_prefix="!", intents=intents)
 
 @bot.tree.command(name="ping")
 async def ping(interaction):
