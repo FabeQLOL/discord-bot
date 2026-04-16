@@ -776,11 +776,11 @@ async def unban(interaction: discord.Interaction, user_id: str):
             ephemeral=True
         )
 
-@tree.command(name="ping", description="Sprawdź czy bot działa")
+@bot.tree.command(name="ping", description="Sprawdź czy bot działa")
 async def ping(interaction: discord.Interaction):
     await interaction.response.send_message("🏓 Pong! FabLite działa!")
 
-tree.command(name="8ball", description="Magiczna kula")
+@bot.tree.command(name="8ball", description="Magiczna kula")
 @app_commands.describe(question="Twoje pytanie")
 async def eightball(interaction: discord.Interaction, question: str):
     responses = [
@@ -793,7 +793,7 @@ async def eightball(interaction: discord.Interaction, question: str):
     ]
     await interaction.response.send_message(f"🎱 {random.choice(responses)}")
 
-@tree.command(name="userinfo", description="Informacje o użytkowniku")
+@bot.tree.command(name="userinfo", description="Informacje o użytkowniku")
 @app_commands.describe(user="Wybierz użytkownika")
 async def userinfo(interaction: discord.Interaction, user: discord.Member = None):
     if user is None:
@@ -806,7 +806,7 @@ ID: {user.id}
 Dołączył: {user.joined_at}
 """)
 
-@tree.command(name="avatar", description="Pokaż avatar")
+@bot.tree.command(name="avatar", description="Pokaż avatar")
 @app_commands.describe(user="Wybierz użytkownika")
 async def avatar(interaction: discord.Interaction, user: discord.Member = None):
     if user is None:
