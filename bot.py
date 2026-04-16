@@ -124,20 +124,386 @@ async def global_check(interaction: discord.Interaction):
 
 # ===== KOMENDY =====
 
-@bot.tree.command(name="hej", description="Powitanie")
+# -------------------------
+# LANGUAGE SYSTEM
+# -------------------------
+
+def load_lang():
+    try:
+        with open("lang.json", "r") as f:
+            return json.load(f)
+    except:
+        return {}
+
+def save_lang(data):
+    with open("lang.json", "w") as f:
+        json.dump(data, f, indent=4)
+
+langs = load_lang()
+
+def get_lang(user_id):
+    return langs.get(str(user_id), "pl")
+
+# -------------------------
+# TEXTS (TRANSLATIONS)
+# -------------------------
+texts = {
+    "allin": {
+        "pl": "💸 Wchodzisz all-in!",
+        "en": "💸 Going all-in!"
+    },
+    "balance": {
+        "pl": "💰 Twoje saldo: {coins}",
+        "en": "💰 Your balance: {coins}"
+    },
+    "ban": {
+        "pl": "🔨 Użytkownik został zbanowany",
+        "en": "🔨 User has been banned"
+    },
+    "buy": {
+        "pl": "🛒 Kupiono przedmiot",
+        "en": "🛒 Item purchased"
+    },
+    "buycase": {
+        "pl": "📦 Kupiono skrzynkę",
+        "en": "📦 Case purchased"
+    },
+    "clearwarns": {
+        "pl": "🧹 Wyczyściliśmy warny",
+        "en": "🧹 Warnings cleared"
+    },
+    "coinflip": {
+        "pl": "🪙 Rzut monetą: {result}",
+        "en": "🪙 Coinflip result: {result}"
+    },
+    "daily": {
+        "pl": "💰 Otrzymałeś {coins} coins!",
+        "en": "💰 You received {coins} coins!"
+    },
+    "deposit": {
+        "pl": "🏦 Wpłaciłeś {coins} coins",
+        "en": "🏦 Deposited {coins} coins"
+    },
+    "hej": {
+        "pl": "👋 Hej!",
+        "en": "👋 Hello!"
+    },
+    "interest": {
+        "pl": "📈 Otrzymałeś odsetki: {coins}",
+        "en": "📈 You earned interest: {coins}"
+    },
+    "inventory": {
+        "pl": "🎒 Twój ekwipunek",
+        "en": "🎒 Your inventory"
+    },
+    "jackpot": {
+        "pl": "🎰 Jackpot!",
+        "en": "🎰 Jackpot!"
+    },
+    "kick": {
+        "pl": "👢 Użytkownik został wyrzucony",
+        "en": "👢 User has been kicked"
+    },
+    "level": {
+        "pl": "📊 Twój poziom: {level}",
+        "en": "📊 Your level: {level}"
+    },
+    "losuj": {
+        "pl": "🎲 Wylosowano: {number}",
+        "en": "🎲 You rolled: {number}"
+    },
+    "mute": {
+        "pl": "🔇 Użytkownik został wyciszony",
+        "en": "🔇 User has been muted"
+    },
+    "opencase": {
+        "pl": "📦 Otwierasz skrzynkę...",
+        "en": "📦 Opening case..."
+    },
+    "pay": {
+        "pl": "💸 Wysłałeś {coins} coins",
+        "en": "💸 You sent {coins} coins"
+    },
+    "ruletka": {
+        "pl": "🎡 Kręcisz ruletką...",
+        "en": "🎡 Spinning roulette..."
+    },
+    "sell": {
+        "pl": "💵 Sprzedano przedmiot",
+        "en": "💵 Item sold"
+    },
+    "shop": {
+        "pl": "🛍️ Sklep",
+        "en": "🛍️ Shop"
+    },
+    "sloty": {
+        "pl": "🎰 Kręcisz slotami...",
+        "en": "🎰 Spinning slots..."
+    },
+    "stats": {
+        "pl": "📊 Twoje statystyki",
+        "en": "📊 Your stats"
+    },
+    "top": {
+        "pl": "🏆 Ranking graczy",
+        "en": "🏆 Leaderboard"
+    },
+    "toplvl": {
+        "pl": "🏅 Ranking poziomów",
+        "en": "🏅 Level leaderboard"
+    },
+    "unban": {
+        "pl": "🔓 Użytkownik odbanowany",
+        "en": "🔓 User unbanned"
+    },
+    "unmute": {
+        "pl": "🔊 Użytkownik odciszony",
+        "en": "🔊 User unmuted"
+    },
+    "warn": {
+        "pl": "⚠️ Użytkownik otrzymał warna",
+        "en": "⚠️ User warned"
+    },
+    "warns": {
+        "pl": "⚠️ Lista warnów",
+        "en": "⚠️ Warnings list"
+    },
+    "withdraw": {
+        "pl": "🏧 Wypłaciłeś {coins} coins",
+        "en": "🏧 Withdrew {coins} coins"
+    },
+    "avatar": {
+        "pl": "🖼️ Avatar użytkownika",
+        "en": "🖼️ User avatar"
+    },
+    "8ball": {
+        "pl": "🎱 Odpowiedź: {answer}",
+        "en": "🎱 Answer: {answer}"
+    },
+    "userinfo": {
+        "pl": "👤 Informacje o użytkowniku",
+        "en": "👤 User info"
+}
+
+def t(key, lang="pl", **kwargs):
+    return texts[key][lang].format(**kwargs)
+
+# -------------------------
+# LANGUAGE COMMANDS
+# -------------------------
+    
+@tree.command(name="pl", description="Ustaw język polski")
+async def set_pl(interaction: discord.Interaction):
+    langs[str(interaction.user.id)] = "pl"
+    save_lang(langs)
+    await interaction.response.send_message("🇵🇱 Ustawiono język polski!")
+
+@tree.command(name="en", description="Set English language")
+async def set_en(interaction: discord.Interaction):
+    langs[str(interaction.user.id)] = "en"
+    save_lang(langs)
+    await interaction.response.send_message("🇬🇧 Language set to English!")
+
+# -------------------------
+# COMMANDS
+# -------------------------
+# -------------------------
+# BASIC
+# -------------------------
+
+@tree.command(name="ping", description="Check bot status")
+async def ping(interaction: discord.Interaction):
+    await interaction.response.send_message("🏓 Pong!")
+
+@tree.command(name="hello", description="Say hello")
+async def hello(interaction: discord.Interaction):
+    await interaction.response.send_message("👋 Hello!")
+
+# -------------------------
+# ECONOMY
+# -------------------------
+
+@tree.command(name="balance", description="Check your balance")
+async def balance(interaction: discord.Interaction):
+    await interaction.response.send_message("💰 Balance: 500 coins")
+
+@tree.command(name="daily", description="Daily reward")
+async def daily(interaction: discord.Interaction):
+    coins = random.randint(50, 150)
+    await interaction.response.send_message(f"💰 You got {coins} coins!")
+
+@tree.command(name="deposit", description="Deposit money")
+async def deposit(interaction: discord.Interaction):
+    await interaction.response.send_message("🏦 Deposited 100 coins")
+
+@tree.command(name="withdraw", description="Withdraw money")
+async def withdraw(interaction: discord.Interaction):
+    await interaction.response.send_message("🏧 Withdrew 100 coins")
+
+@tree.command(name="pay", description="Send money")
+async def pay(interaction: discord.Interaction):
+    await interaction.response.send_message("💸 Sent coins")
+
+@tree.command(name="interest", description="Collect interest")
+async def interest(interaction: discord.Interaction):
+    await interaction.response.send_message("📈 Interest received!")
+
+# -------------------------
+# SHOP / ITEMS
+# -------------------------
+
+@tree.command(name="shop", description="Open shop")
+async def shop(interaction: discord.Interaction):
+    await interaction.response.send_message("🛍️ Shop opened")
+
+@tree.command(name="buy", description="Buy item")
+async def buy(interaction: discord.Interaction):
+    await interaction.response.send_message("🛒 Item bought")
+
+@tree.command(name="sell", description="Sell item")
+async def sell(interaction: discord.Interaction):
+    await interaction.response.send_message("💵 Item sold")
+
+@tree.command(name="inventory", description="Check inventory")
+async def inventory(interaction: discord.Interaction):
+    await interaction.response.send_message("🎒 Your inventory")
+
+# -------------------------
+# CASE SYSTEM
+# -------------------------
+
+@tree.command(name="buycase", description="Buy case")
+async def buycase(interaction: discord.Interaction):
+    await interaction.response.send_message("📦 Case bought")
+
+@tree.command(name="opencase", description="Open case")
+async def opencase(interaction: discord.Interaction):
+    await interaction.response.send_message("📦 Opening case...")
+
+# -------------------------
+# GAMBLING
+# -------------------------
+
+@tree.command(name="coinflip", description="Flip a coin")
+async def coinflip(interaction: discord.Interaction):
+    result = random.choice(["Heads 🦅", "Tails 🪙"])
+    await interaction.response.send_message(result)
+
+@tree.command(name="slots", description="Play slots")
+async def slots(interaction: discord.Interaction):
+    await interaction.response.send_message("🎰 Spinning slots...")
+
+@tree.command(name="roulette", description="Play roulette")
+async def roulette(interaction: discord.Interaction):
+    await interaction.response.send_message("🎡 Spinning roulette...")
+
+@tree.command(name="allin", description="Go all in")
+async def allin(interaction: discord.Interaction):
+    await interaction.response.send_message("💸 All-in!")
+
+@tree.command(name="jackpot", description="Play jackpot")
+async def jackpot(interaction: discord.Interaction):
+    await interaction.response.send_message("🎰 Jackpot!")
+
+# -------------------------
+# LEVEL / STATS
+# -------------------------
+
+@tree.command(name="level", description="Check level")
+async def level(interaction: discord.Interaction):
+    await interaction.response.send_message("📊 Level: 5")
+
+@tree.command(name="stats", description="Your stats")
+async def stats(interaction: discord.Interaction):
+    await interaction.response.send_message("📊 Stats")
+
+@tree.command(name="leaderboard", description="Top players")
+async def leaderboard(interaction: discord.Interaction):
+    await interaction.response.send_message("🏆 Leaderboard")
+
+@tree.command(name="leaderboardlevel", description="Top levels")
+async def leaderboardlevel(interaction: discord.Interaction):
+    await interaction.response.send_message("🏅 Level leaderboard")
+
+# -------------------------
+# FUN
+# -------------------------
+
+@tree.command(name="roll", description="Roll number")
+async def roll(interaction: discord.Interaction):
+    number = random.randint(1, 100)
+    await interaction.response.send_message(f"🎲 {number}")
+
+@tree.command(name="8ball", description="Magic ball")
+@app_commands.describe(question="Your question")
+async def eightball(interaction: discord.Interaction, question: str):
+    answer = random.choice(["Yes", "No", "Maybe"])
+    await interaction.response.send_message(f"🎱 {answer}")
+
+@tree.command(name="avatar", description="Get avatar")
+@app_commands.describe(user="User")
+async def avatar(interaction: discord.Interaction, user: discord.Member = None):
+    if user is None:
+        user = interaction.user
+    await interaction.response.send_message(user.avatar.url)
+
+@tree.command(name="userinfo", description="User info")
+@app_commands.describe(user="User")
+async def userinfo(interaction: discord.Interaction, user: discord.Member = None):
+    if user is None:
+        user = interaction.user
+    await interaction.response.send_message(f"👤 {user.name} | ID: {user.id}")
+
+# -------------------------
+# ADMIN (basic)
+# -------------------------
+
+@tree.command(name="ban", description="Ban user")
+async def ban(interaction: discord.Interaction):
+    await interaction.response.send_message("🔨 User banned")
+
+@tree.command(name="unban", description="Unban user")
+async def unban(interaction: discord.Interaction):
+    await interaction.response.send_message("🔓 User unbanned")
+
+@tree.command(name="kick", description="Kick user")
+async def kick(interaction: discord.Interaction):
+    await interaction.response.send_message("👢 User kicked")
+
+@tree.command(name="mute", description="Mute user")
+async def mute(interaction: discord.Interaction):
+    await interaction.response.send_message("🔇 User muted")
+
+@tree.command(name="unmute", description="Unmute user")
+async def unmute(interaction: discord.Interaction):
+    await interaction.response.send_message("🔊 User unmuted")
+
+@tree.command(name="warn", description="Warn user")
+async def warn(interaction: discord.Interaction):
+    await interaction.response.send_message("⚠️ User warned")
+
+@tree.command(name="warnings", description="Check warnings")
+async def warnings(interaction: discord.Interaction):
+    await interaction.response.send_message("⚠️ Warning list")
+
+@tree.command(name="clearwarnings", description="Clear warnings")
+async def clearwarnings(interaction: discord.Interaction):
+    await interaction.response.send_message("🧹 Warnings cleared")
+
+@bot.tree.command(name="hejpl", description="Powitanie")
 async def hej(interaction: discord.Interaction):
     await interaction.response.send_message("Siema 😎")
 
-@bot.tree.command(name="losuj", description="Losuje liczbę 1-100")
+@bot.tree.command(name="losujpl", description="Losuje liczbę 1-100")
 async def losuj(interaction: discord.Interaction):
     await interaction.response.send_message(str(random.randint(1, 100)))
 
-@bot.tree.command(name="coinflip", description="Orzeł czy reszka")
+@bot.tree.command(name="coinflippl", description="Orzeł czy reszka")
 async def coinflip(interaction: discord.Interaction):
     wynik = random.choice(["Orzeł 🦅", "Reszka 🪙"])
     await interaction.response.send_message(wynik)
 
-@bot.tree.command(name="balance", description="Stan konta")
+@bot.tree.command(name="balancepl", description="Stan konta")
 async def balance(interaction: discord.Interaction):
     data, user_id = get_user(interaction.user.id)
 
@@ -145,7 +511,7 @@ async def balance(interaction: discord.Interaction):
         str(data[user_id]["money"]) + "$"
     )
 
-@bot.tree.command(name="work", description="Zarabiaj pieniądze 💼")
+@bot.tree.command(name="workpl", description="Zarabiaj pieniądze 💼")
 async def work(interaction: discord.Interaction):
     data, user_id = get_user(interaction.user.id)
 
@@ -170,7 +536,7 @@ async def work(interaction: discord.Interaction):
         f"💼 Pracowałeś i zarobiłeś **{zarobek}$** 💰"
     )
 
-@bot.tree.command(name="ruletka", description="Zagraj w ruletkę")
+@bot.tree.command(name="ruletkapl", description="Zagraj w ruletkę")
 async def ruletka(interaction: discord.Interaction, liczba: int, stawka: int):
 
     if liczba < 1 or liczba > 36:
@@ -200,7 +566,7 @@ async def ruletka(interaction: discord.Interaction, liczba: int, stawka: int):
         f"{wynik}\nTwoja liczba: {liczba}\nWylosowana: {wylosowana}"
     )
 
-@bot.tree.command(name="daily", description="Codzienna nagroda 🎁")
+@bot.tree.command(name="dailypl", description="Codzienna nagroda 🎁")
 async def daily(interaction: discord.Interaction):
     data, user_id = get_user(interaction.user.id)
     user = str(interaction.user.id)
@@ -233,7 +599,7 @@ async def top(interaction: discord.Interaction):
 
     await interaction.response.send_message(msg)
 
-@bot.tree.command(name="pay", description="Wyślij komuś kasę 💸")
+@bot.tree.command(name="paypl", description="Wyślij komuś kasę 💸")
 async def pay(interaction: discord.Interaction, user: discord.Member, kwota: int):
     data, user_id = get_user(interaction.user.id)
     sender = str(interaction.user.id)
@@ -258,7 +624,7 @@ async def pay(interaction: discord.Interaction, user: discord.Member, kwota: int
         f"💸 Przelałeś {kwota}$ do {user.mention}"
     )
 
-@bot.tree.command(name="shop", description="Sklep 🛒")
+@bot.tree.command(name="shoppl", description="Sklep 🛒")
 async def shop(interaction: discord.Interaction):
     msg = (
         "🛒 **SKLEP**\n\n"
@@ -270,7 +636,7 @@ async def shop(interaction: discord.Interaction):
 
 VIP_ROLE_ID = 1493505575932395592  # <- TU WSTAW ID ROLI
 
-@bot.tree.command(name="buy", description="Kup coś ze sklepu 💸")
+@bot.tree.command(name="buypl", description="Kup coś ze sklepu 💸")
 async def buy(interaction: discord.Interaction, item: str):
     data, user_id = get_user(interaction.user.id)
     user_id = str(interaction.user.id)
@@ -299,7 +665,7 @@ async def buy(interaction: discord.Interaction, item: str):
     else:
         await interaction.response.send_message("❌ Nie ma takiego itemu", ephemeral=True)
 
-@bot.tree.command(name="level", description="Sprawdź swój level 📊")
+@bot.tree.command(name="levelpl", description="Sprawdź swój level 📊")
 async def level(interaction: discord.Interaction, user: discord.Member = None):
 
     if user is None:
@@ -315,7 +681,7 @@ async def level(interaction: discord.Interaction, user: discord.Member = None):
         f"📊 {user.mention}\nLevel: {lvl}\nEXP: {exp}/{lvl*100}"
     )
 
-@bot.tree.command(name="toplvl", description="Top leveli 🏆")
+@bot.tree.command(name="toplvlpl", description="Top leveli 🏆")
 async def top(interaction: discord.Interaction):
 
     data = load_data()
@@ -333,7 +699,7 @@ async def top(interaction: discord.Interaction):
 
     await interaction.response.send_message(msg)
 
-@bot.tree.command(name="allin", description="All-in 💀 50/50")
+@bot.tree.command(name="allinpl", description="All-in 💀 50/50")
 async def allin(interaction: discord.Interaction):
 
     data, user_id = get_user(interaction.user.id)
@@ -359,7 +725,7 @@ async def allin(interaction: discord.Interaction):
 
     await interaction.response.send_message(msg)
 
-@bot.tree.command(name="sloty", description="Automaty 🎰")
+@bot.tree.command(name="slotypl", description="Automaty 🎰")
 async def sloty(interaction: discord.Interaction, kwota: int):
 
     data, user_id = get_user(interaction.user.id)
@@ -392,7 +758,7 @@ async def sloty(interaction: discord.Interaction, kwota: int):
 
     await interaction.response.send_message(msg)
 
-@bot.tree.command(name="buycase", description="Kup skrzynkę 🎁")
+@bot.tree.command(name="buycasepl", description="Kup skrzynkę 🎁")
 async def buycase(interaction: discord.Interaction):
 
     data, user_id = get_user(interaction.user.id)
@@ -411,7 +777,7 @@ async def buycase(interaction: discord.Interaction):
 
     await interaction.response.send_message("🎁 Kupiłeś skrzynkę!")
 
-@bot.tree.command(name="opencase", description="Otwórz skrzynkę 🎰")
+@bot.tree.command(name="opencasepl", description="Otwórz skrzynkę 🎰")
 async def opencase(interaction: discord.Interaction):
 
     data, user_id = get_user(interaction.user.id)
@@ -465,7 +831,7 @@ async def opencase(interaction: discord.Interaction):
         f"💰 Wartość: {value}$"
     )
 
-@bot.tree.command(name="deposit", description="Wpłać kasę do banku 🏦")
+@bot.tree.command(name="depositppl", description="Wpłać kasę do banku 🏦")
 async def deposit(interaction: discord.Interaction, kwota: int):
 
     data, user_id = get_user(interaction.user.id)
@@ -484,7 +850,7 @@ async def deposit(interaction: discord.Interaction, kwota: int):
         f"🏦 Wpłaciłeś {kwota}$ do banku!"
     )
 
-@bot.tree.command(name="withdraw", description="Wypłać kasę z banku 💸")
+@bot.tree.command(name="withdrawpl", description="Wypłać kasę z banku 💸")
 async def withdraw(interaction: discord.Interaction, kwota: int):
 
     data, user_id = get_user(interaction.user.id)
@@ -503,7 +869,7 @@ async def withdraw(interaction: discord.Interaction, kwota: int):
         f"💸 Wypłaciłeś {kwota}$ z banku!"
     )
 
-@bot.tree.command(name="interest", description="Odbierz odsetki 💰")
+@bot.tree.command(name="interestpl", description="Odbierz odsetki 💰")
 async def interest(interaction: discord.Interaction):
 
     data, user_id = get_user(interaction.user.id)
@@ -534,7 +900,7 @@ async def interest(interaction: discord.Interaction):
         f"💰 Otrzymałeś {profit}$ odsetek!"
     )
 
-@bot.tree.command(name="inventory", description="Twój ekwipunek 🎒")
+@bot.tree.command(name="inventorypl", description="Twój ekwipunek 🎒")
 async def inventory(interaction: discord.Interaction):
     data, user_id = get_user(interaction.user.id)
 
@@ -551,7 +917,7 @@ async def inventory(interaction: discord.Interaction):
 
     await interaction.response.send_message(msg)
     
-@bot.tree.command(name="sell", description="Sprzedaj item 💸")
+@bot.tree.command(name="sellpl", description="Sprzedaj item 💸")
 async def sell(interaction: discord.Interaction, index: int):
     data, user_id = get_user(interaction.user.id)
 
@@ -575,7 +941,7 @@ async def sell(interaction: discord.Interaction, index: int):
         f"💰 Sprzedałeś **{item['name']}** za **{item['value']}$**"
     )
 
-@bot.tree.command(name="stats", description="Statystyki serwera 📊")
+@bot.tree.command(name="statspl", description="Statystyki serwera 📊")
 async def stats(interaction: discord.Interaction):
 
     guild = interaction.guild
@@ -597,7 +963,7 @@ async def stats(interaction: discord.Interaction):
 
     await interaction.response.send_message(embed=embed)
 
-@bot.tree.command(name="jackpot", description="Zagraj w jackpot 🎰")
+@bot.tree.command(name="jackpotpl", description="Zagraj w jackpot 🎰")
 async def jackpot(interaction: discord.Interaction, amount: int):
 
     await interaction.response.defer()
@@ -642,7 +1008,7 @@ async def jackpot(interaction: discord.Interaction, amount: int):
 
 from datetime import timedelta
 
-@bot.tree.command(name="warn", description="Daj ostrzeżenie ⚠️")
+@bot.tree.command(name="warnpl", description="Daj ostrzeżenie ⚠️")
 async def warn(interaction: discord.Interaction, user: discord.Member, powod: str):
 
     if not interaction.user.guild_permissions.kick_members:
@@ -688,7 +1054,7 @@ async def warns(interaction: discord.Interaction, user: discord.Member):
         f"📋 {user.mention} ma {warns} warnów"
     )
 
-@bot.tree.command(name="clearwarns", description="Usuń warny 🧹")
+@bot.tree.command(name="clearwarnspl", description="Usuń warny 🧹")
 async def clearwarns(interaction: discord.Interaction, user: discord.Member):
 
     if not interaction.user.guild_permissions.kick_members:
@@ -705,13 +1071,13 @@ async def clearwarns(interaction: discord.Interaction, user: discord.Member):
         f"🧹 Wyczyszczono warny dla {user.mention}"
     )
 
-@bot.tree.command(name="ban", description="Banuje użytkownika")
+@bot.tree.command(name="banpl", description="Banuje użytkownika")
 @app_commands.checks.has_permissions(ban_members=True)
 async def ban(interaction: discord.Interaction, user: discord.Member, reason: str = "Brak powodu"):
     await user.ban(reason=reason)
     await interaction.response.send_message(f"🔨 Zbanowano {user} | Powód: {reason}")
 
-@bot.tree.command(name="kick", description="Wyrzuca użytkownika")
+@bot.tree.command(name="kickpl", description="Wyrzuca użytkownika")
 @app_commands.checks.has_permissions(kick_members=True)
 async def kick(interaction: discord.Interaction, user: discord.Member, reason: str = "Brak powodu"):
     await user.kick(reason=reason)
@@ -719,7 +1085,7 @@ async def kick(interaction: discord.Interaction, user: discord.Member, reason: s
 
 from datetime import timedelta
 
-@bot.tree.command(name="mute", description="Wycisz użytkownika 🔇")
+@bot.tree.command(name="mutepl", description="Wycisz użytkownika 🔇")
 async def mute(interaction: discord.Interaction, user: discord.Member):
 
     if not interaction.user.guild_permissions.kick_members:
@@ -734,7 +1100,7 @@ async def mute(interaction: discord.Interaction, user: discord.Member):
 
 from datetime import timedelta
 
-@bot.tree.command(name="unmute", description="Odcisz użytkownika 🔊")
+@bot.tree.command(name="unmutepl", description="Odcisz użytkownika 🔊")
 async def unmute(interaction: discord.Interaction, user: discord.Member):
 
     if not interaction.user.guild_permissions.kick_members:
@@ -755,7 +1121,7 @@ async def unmute(interaction: discord.Interaction, user: discord.Member):
             ephemeral=True
         )
 
-@bot.tree.command(name="unban", description="Odbanuj użytkownika 🔓")
+@bot.tree.command(name="unbanpl", description="Odbanuj użytkownika 🔓")
 async def unban(interaction: discord.Interaction, user_id: str):
 
     if not interaction.user.guild_permissions.ban_members:
@@ -776,11 +1142,11 @@ async def unban(interaction: discord.Interaction, user_id: str):
             ephemeral=True
         )
 
-@bot.tree.command(name="ping", description="Sprawdź czy bot działa")
+@bot.tree.command(name="pingpl", description="Sprawdź czy bot działa")
 async def ping(interaction: discord.Interaction):
     await interaction.response.send_message("🏓 Pong! FabLite działa!")
 
-@bot.tree.command(name="8ball", description="Magiczna kula")
+@bot.tree.command(name="8ballpl", description="Magiczna kula")
 @app_commands.describe(question="Twoje pytanie")
 async def eightball(interaction: discord.Interaction, question: str):
     responses = [
@@ -793,7 +1159,7 @@ async def eightball(interaction: discord.Interaction, question: str):
     ]
     await interaction.response.send_message(f"🎱 {random.choice(responses)}")
 
-@bot.tree.command(name="userinfo", description="Informacje o użytkowniku")
+@bot.tree.command(name="userinfopl", description="Informacje o użytkowniku")
 @app_commands.describe(user="Wybierz użytkownika")
 async def userinfo(interaction: discord.Interaction, user: discord.Member = None):
     if user is None:
@@ -806,7 +1172,7 @@ ID: {user.id}
 Dołączył: {user.joined_at}
 """)
 
-@bot.tree.command(name="avatar", description="Pokaż avatar")
+@bot.tree.command(name="avatarpl", description="Pokaż avatar")
 @app_commands.describe(user="Wybierz użytkownika")
 async def avatar(interaction: discord.Interaction, user: discord.Member = None):
     if user is None:
