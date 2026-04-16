@@ -283,14 +283,11 @@ texts = {
     "userinfo": {
         "pl": "👤 Informacje o użytkowniku",
         "en": "👤 User info"
+ }
 }
-
 def t(key, lang="pl", **kwargs):
     return texts[key][lang].format(**kwargs)
 
-# -------------------------
-# LANGUAGE COMMANDS
-# -------------------------
     
 @tree.command(name="pl", description="Ustaw język polski")
 async def set_pl(interaction: discord.Interaction):
@@ -304,12 +301,6 @@ async def set_en(interaction: discord.Interaction):
     save_lang(langs)
     await interaction.response.send_message("🇬🇧 Language set to English!")
 
-# -------------------------
-# COMMANDS
-# -------------------------
-# -------------------------
-# BASIC
-# -------------------------
 
 @tree.command(name="ping", description="Check bot status")
 async def ping(interaction: discord.Interaction):
@@ -318,10 +309,6 @@ async def ping(interaction: discord.Interaction):
 @tree.command(name="hello", description="Say hello")
 async def hello(interaction: discord.Interaction):
     await interaction.response.send_message("👋 Hello!")
-
-# -------------------------
-# ECONOMY
-# -------------------------
 
 @tree.command(name="balance", description="Check your balance")
 async def balance(interaction: discord.Interaction):
@@ -368,9 +355,6 @@ async def sell(interaction: discord.Interaction):
 async def inventory(interaction: discord.Interaction):
     await interaction.response.send_message("🎒 Your inventory")
 
-# -------------------------
-# CASE SYSTEM
-# -------------------------
 
 @tree.command(name="buycase", description="Buy case")
 async def buycase(interaction: discord.Interaction):
