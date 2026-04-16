@@ -9,10 +9,23 @@ import time
 
 ALLOWED_GUILD_ID = 1492852181303431289
 
+premium_users = set()
+
+def is_premium(user_id):
+    return user_id in premium_users
+
 intents = discord.Intents.default()
 intents.members = True  # WAŻNE do ban/kick/mute
 
 bot = commands.Bot(command_prefix="!", intents=intents)
+
+@bot.tree.command(name="ping")
+async def ping(interaction):
+    if interaction.user.id not in premium_users:
+        await interaction.response.send_message("❌ Brak dostępu")
+        return
+
+    await interaction.response.send_message("Pong 🏓")
 
 # ===== READY =====
 OWNER_ID = 1490030330084720892 # <- tutaj wstaw swoje ID Discord
@@ -301,10 +314,6 @@ async def set_en(interaction: discord.Interaction):
     save_lang(langs)
     await interaction.response.send_message("🇬🇧 Language set to English!")
 
-
-@bot.tree.command(name="ping", description="Check bot status")
-async def ping(interaction: discord.Interaction):
-    await interaction.response.send_message("🏓 Pong!")
 
 @bot.tree.command(name="hello", description="Say hello")
 async def hello(interaction: discord.Interaction):
@@ -1125,10 +1134,6 @@ async def unban(interaction: discord.Interaction, user_id: str):
             f"❌ Błąd: {e}",
             ephemeral=True
         )
-
-@bot.tree.command(name="pingpl", description="Sprawdź czy bot działa")
-async def ping(interaction: discord.Interaction):
-    await interaction.response.send_message("🏓 Pong! FabLite działa!")
 
 @bot.tree.command(name="8ballpl", description="Magiczna kula")
 @app_commands.describe(question="Twoje pytanie")
