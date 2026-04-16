@@ -10,8 +10,6 @@ import string
 
 ALLOWED_GUILD_ID = 1492852181303431289
 
-bot = commands.Bot(command_prefix="!", intents=intents)
-
 premium_users = set()
 
 @bot.tree.command(name="ping")
@@ -129,6 +127,10 @@ async def global_check(interaction:discord.Interaction):
 @bot.tree.interaction_check
 async def global_check(interaction: discord.Interaction):
     return True
+
+
+bot = commands.Bot(command_prefix="!", intents=intents)
+
 
 # ===== KOMENDY =====
 
