@@ -6,10 +6,79 @@ import random
 import asyncio
 import json
 import time
+import string
 
 ALLOWED_GUILD_ID = 1492852181303431289
 
 premium_users = set()
+
+
+KEYS_FILE = "keys.json"
+PREMIUM_FILE = "premium.json"
+
+
+def load_json(file):
+    try:
+        with open(file, "r") as f:
+            return json.load(f)
+    except:
+        return {}
+
+
+def save_json(file, data):
+    with open(file, "w") as f:
+        json.dump(data, f, indent=4)
+
+def is_premium(user_id: int):
+    premium = load_json("premium.json")
+    return str(user_id) in premium
+
+@bot.tree.command(name="redeem", description="Aktywuj klucz premium")
+@app_commands.describe(key="Twój klucz premium")
+async def redeem(interaction: discord.Interaction, key: str):
+
+    keys = load_json(KEYS_FILE)
+    premium = load_json(PREMIUM_FILE)
+
+    # 🔍 sprawdzenie klucza
+    if key not in keys:
+        await interaction.response.send_message("❌ Nieprawidłowy klucz", ephemeral=True)
+        return
+
+    if keys[key] is True:
+        await interaction.response.send_message("❌ Ten klucz został już użyty", ephemeral=True)
+        return
+
+    # 💎 aktywacja
+    user_id = str(interaction.user.id)
+
+    keys[key] = True
+    premium[user_id] = True
+
+    save_json(KEYS_FILE, keys)
+    save_json(PREMIUM_FILE, premium)
+
+    await interaction.response.send_message("✅ Premium aktywowane!", ephemeral=True)
+
+def generate_key():
+    return "FABBOT-" + "".join(random.choices(string.ascii_uppercase + string.digits, k=12))
+
+
+@bot.tree.command(name="genkey", description="Generuj klucz (admin)")
+async def genkey(interaction: discord.Interaction):
+
+    if not interaction.user.guild_permissions.administrator:
+        await interaction.response.send_message("❌ Brak uprawnień", ephemeral=True)
+        return
+
+    keys = load_json("keys.json")
+
+    key = generate_key()
+    keys[key] = False
+
+    save_json("keys.json", keys)
+
+    await interaction.response.send_message(f"🔑 Klucz: `{key}`", ephemeral=True)
 
 def is_premium(user_id):
     return user_id in premium_users
