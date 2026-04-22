@@ -129,10 +129,6 @@ async def on_ready():
 async def global_check(interaction:discord.Interaction):
     return True
 
-@bot.tree.interaction_check
-async def global_check(interaction: discord.Interaction):
-    return True
-
 # ===== KOMENDY =====
 
 # -------------------------
@@ -745,7 +741,7 @@ async def stats(interaction: discord.Interaction):
 
     await interaction.response.send_message(embed=embed)
 
-@bot.tree.command(name="Leaderboards", description="Top Players 🏆")
+@bot.tree.command(name="leaderboards", description="Top Players 🏆")
 async def top(interaction: discord.Interaction):
 
     data = load_data()
