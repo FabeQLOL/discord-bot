@@ -507,7 +507,7 @@ async def buycase(interaction: discord.Interaction):
 
     await interaction.response.send_message("🎁 You bought a case!")
     
-@bot.tree.command(name="opencasepl", description="Open Case 🎰")
+@bot.tree.command(name="opencase", description="Open Case 🎰")
 async def opencase(interaction: discord.Interaction):
 
     data, user_id = get_user(interaction.user.id)
