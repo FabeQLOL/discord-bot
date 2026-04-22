@@ -17,13 +17,6 @@ bot = commands.Bot(command_prefix="/", intents=intents)
 
 premium_users = set()
 
-@bot.tree.command(name="ping")
-async def ping(interaction):
-    if interaction.user.id not in premium_users:
-        await interaction.response.send_message("❌ Brak dostępu")
-        return
-
-    await interaction.response.send_message("Pong 🏓")
 
 # ===== READY =====
 OWNER_ID = 1490030330084720892 # <- tutaj wstaw swoje ID Discord
@@ -351,55 +344,55 @@ async def daily(interaction: discord.Interaction):
     coins = random.randint(50, 150)
     await interaction.response.send_message(f"💰 You got {coins} coins!")
 
-@bot.tree.command(name="deposit", description="Deposit the money into the bank. 🏦")
-async def deposit(interaction: discord.Interaction, kwota: int):
+@bot.tree.command(name="deposit", description="Deposit money into the bank. 🏦")
+async def deposit(interaction: discord.Interaction, amount: int):
 
     data, user_id = get_user(interaction.user.id)
     user_id = str(interaction.user.id)
 
-    if kwota <= 0 or data[user_id]["money"] < kwota:
+    if amount <= 0 or data[user_id]["money"] < amount:
         await interaction.response.send_message("❌ Incorrect amount", ephemeral=True)
         return
 
-    data[user_id]["money"] -= kwota
-    data[user_id]["bank"] += kwota
+    data[user_id]["money"] -= amount
+    data[user_id]["bank"] += amount
 
     save_data(data)
 
     await interaction.response.send_message(
-        f"🏦 You deposited {kwota}$ into the bank.!"
+        f"🏦 You deposited {amount}$ into the bank.!"
     )
 @bot.tree.command(name="withdraw", description="Withdraw cash from the bank. 💸")
-async def withdraw(interaction: discord.Interaction, kwota: int):
+async def withdraw(interaction: discord.Interaction, amount: int):
 
     data, user_id = get_user(interaction.user.id)
     user_id = str(interaction.user.id)
 
-    if kwota <= 0 or data[user_id]["bank"] < kwota:
+    if amount <= 0 or data[user_id]["bank"] < amount:
         await interaction.response.send_message("❌ Incorrect Amount", ephemeral=True)
         return
 
-    data[user_id]["bank"] -= kwota
-    data[user_id]["money"] += kwota
+    data[user_id]["bank"] -= amount
+    data[user_id]["money"] += amount
 
     save_data(data)
 
     await interaction.response.send_message(
-        f"💸 You withdrew {kwota}$ from the bank.!"
+        f"💸 You withdrew {amount}$ from the bank.!"
     )
 
 @bot.tree.command(name="pay", description="Send Money 💸")
-async def pay(interaction: discord.Interaction, user: discord.Member, kwota: int):
+async def pay(interaction: discord.Interaction, user: discord.Member, amount: int):
 
     data, _ = get_user(interaction.user.id)
     sender = str(interaction.user.id)
     receiver = str(user.id)
 
-    if kwota <= 0:
+    if amount <= 0:
         await interaction.response.send_message("❌ Invalid amount.", ephemeral=True)
         return
 
-    if data[sender]["money"] < kwota:
+    if data[sender]["money"] < amount:
         await interaction.response.send_message("❌ Not enough money.", ephemeral=True)
         return
 
@@ -407,13 +400,13 @@ async def pay(interaction: discord.Interaction, user: discord.Member, kwota: int
     if receiver not in data:
         data[receiver] = {"money": 0, "warns": 0}
 
-    data[sender]["money"] -= kwota
-    data[receiver]["money"] += kwota
+    data[sender]["money"] -= amount
+    data[receiver]["money"] += amount
 
     save_data(data)
 
     await interaction.response.send_message(
-        f"💸 You sent {kwota}$ to {user.mention}"
+        f"💸 You sent {amount}$ to {user.mention}"
     )
 
 @bot.tree.command(name="interest", description="Collect Interest 💰")
@@ -573,12 +566,12 @@ async def coinflip(interaction: discord.Interaction):
     await interaction.response.send_message(result)
 
 @bot.tree.command(name="slots", description="Slot Machines 🎰")
-async def sloty(interaction: discord.Interaction, kwota: int):
+async def sloty(interaction: discord.Interaction, amount: int):
 
     data, user_id = get_user(interaction.user.id)
     user_id = str(interaction.user.id)
 
-    if kwota <= 0 or data[user_id]["money"] < kwota:
+    if amount <= 0 or data[user_id]["money"] < amount:
         await interaction.response.send_message("❌ Incorrect amount", ephemeral=True)
         return
 
@@ -590,49 +583,49 @@ async def sloty(interaction: discord.Interaction, kwota: int):
     msg = " | ".join(wynik) + "\n"
 
     if wynik[0] == wynik[1] == wynik[2]:
-        wygrana = kwota * 5
+        wygrana = amount * 5
         data[user_id]["money"] += wygrana
         msg += f"💰 JACKPOT! +{wygrana}$"
     elif wynik[0] == wynik[1] or wynik[1] == wynik[2]:
-        wygrana = kwota * 2
+        wygrana = amount * 2
         data[user_id]["money"] += wygrana
         msg += f"💰 Win! +{wygrana}$"
     else:
-        data[user_id]["money"] -= kwota
-        msg += f"💸 Defeat -{kwota}$"
+        data[user_id]["money"] -= amount
+        msg += f"💸 Defeat -{amount}$"
 
     save_data(data)
 
     await interaction.response.send_message(msg)
 
 @bot.tree.command(name="roulette", description="Play roulette")
-async def ruletka(interaction: discord.Interaction, liczba: int, stawka: int):
+async def ruletka(interaction: discord.Interaction, number: int, bet: int):
 
-    if liczba < 1 or liczba > 36:
+    if number < 1 or number > 36:
         await interaction.response.send_message("Number 1–36 ❌", ephemeral=True)
         return
 
     data, user_id = get_user(interaction.user.id)
     user_id = str(interaction.user.id)
 
-    if data[user_id]["money"] < stawka:
+    if data[user_id]["money"] < bet:
         await interaction.response.send_message("You don't have that much money. ❌", ephemeral=True)
         return
 
     wylosowana = random.randint(1, 36)
 
-    if liczba == wylosowana:
-        wygrana = stawka * 10
+    if number == wylosowana:
+        wygrana = bet * 10
         data[user_id]["money"] += wygrana
         wynik = f"🎉 YOU WON {wygrana}$!"
     else:
-        data[user_id]["money"] -= stawka
-        wynik = f"😢 You lost {stawka}$"
+        data[user_id]["money"] -= bet
+        wynik = f"😢 You lost {bet}$"
 
     save_data(data)
 
     await interaction.response.send_message(
-        f"{wynik}\nYour Number: {liczba}\nRandomly Selected: {wylosowana}"
+        f"{wynik}\nYour Number: {number}\nRandomly Selected: {wylosowana}"
     )
 
 @bot.tree.command(name="allin", description="All-in 💀 50/50")
@@ -882,7 +875,7 @@ async def unmute(interaction: discord.Interaction, user: discord.Member):
 
 
 @bot.tree.command(name="warn", description="Issue a warning. ⚠️")
-async def warn(interaction: discord.Interaction, user: discord.Member, powod: str):
+async def warn(interaction: discord.Interaction, user: discord.Member, reason: str):
 
     if not interaction.user.guild_permissions.kick_members:
         await interaction.response.send_message("❌ No permission", ephemeral=True)
@@ -900,7 +893,7 @@ async def warn(interaction: discord.Interaction, user: discord.Member, powod: st
     save_data(data)
 
     await interaction.response.send_message(
-        f"⚠️ {user.mention} got warned!\nReason: {powod}\nWarns: {warns}"
+        f"⚠️ {user.mention} got warned!\nReason: {reason}\nWarns: {warns}"
     )
 @bot.tree.command(name="warnings", description="Check warns 📋")
 async def warnings(interaction: discord.Interaction, user: discord.Member):
@@ -983,7 +976,7 @@ async def work(interaction: discord.Interaction):
     )
 
 @bot.tree.command(name="ruletkapl", description="Zagraj w ruletkę")
-async def ruletka(interaction: discord.Interaction, liczba: int, stawka: int):
+async def ruletka(interaction: discord.Interaction, liczba: int, bet: int):
 
     if liczba < 1 or liczba > 36:
         await interaction.response.send_message("Liczba 1-36 ❌", ephemeral=True)
@@ -992,19 +985,19 @@ async def ruletka(interaction: discord.Interaction, liczba: int, stawka: int):
     data, user_id = get_user(interaction.user.id)
     user_id = str(interaction.user.id)
 
-    if data[user_id]["money"] < stawka:
+    if data[user_id]["money"] < bet:
         await interaction.response.send_message("Nie masz tyle kasy ❌", ephemeral=True)
         return
 
     wylosowana = random.randint(1, 36)
 
     if liczba == wylosowana:
-        wygrana = stawka * 10
+        wygrana = bet * 10
         data[user_id]["money"] += wygrana
         wynik = f"🎉 WYGRAŁEŚ {wygrana}$!"
     else:
-        data[user_id]["money"] -= stawka
-        wynik = f"😢 Przegrałeś {stawka}$"
+        data[user_id]["money"] -= bet
+        wynik = f"😢 Przegrałeś {bet}$"
 
     save_data(data)
 
