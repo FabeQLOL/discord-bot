@@ -390,19 +390,22 @@ async def withdraw(interaction: discord.Interaction, kwota: int):
 
 @bot.tree.command(name="pay", description="Send Money 💸")
 async def pay(interaction: discord.Interaction, user: discord.Member, kwota: int):
-    data, user_id = get_user(interaction.user.id)
+
+    data, _ = get_user(interaction.user.id)
     sender = str(interaction.user.id)
     receiver = str(user.id)
 
     if kwota <= 0:
-        await interaction.response.send_message("❌ Enter the correct amount.", ephemeral=True)
+        await interaction.response.send_message("❌ Invalid amount.", ephemeral=True)
         return
 
     if data[sender]["money"] < kwota:
-        await interaction.response.send_message("❌ You don't have that much money.", ephemeral=True)
+        await interaction.response.send_message("❌ Not enough money.", ephemeral=True)
         return
 
-    data = get_user(user.id)
+    # UPEWNIJ SIĘ że receiver istnieje
+    if receiver not in data:
+        data[receiver] = {"money": 0, "warns": 0}
 
     data[sender]["money"] -= kwota
     data[receiver]["money"] += kwota
@@ -410,7 +413,7 @@ async def pay(interaction: discord.Interaction, user: discord.Member, kwota: int
     save_data(data)
 
     await interaction.response.send_message(
-        f"💸 You transferred  {kwota}$ to {user.mention}"
+        f"💸 You sent {kwota}$ to {user.mention}"
     )
 
 @bot.tree.command(name="interest", description="Collect Interest 💰")
@@ -635,7 +638,7 @@ async def ruletka(interaction: discord.Interaction, liczba: int, stawka: int):
 @bot.tree.command(name="allin", description="All-in 💀 50/50")
 async def allin(interaction: discord.Interaction):
 
-    data, user_id = get_user(interaction.user.id)
+    data, _ = get_user(interaction.user.id)
     user_id = str(interaction.user.id)
 
     kasa = data[user_id]["money"]
@@ -657,7 +660,7 @@ async def allin(interaction: discord.Interaction):
     save_data(data)
 
     await interaction.response.send_message(msg)
-
+    
 @bot.tree.command(name="jackpot", description="Play the jackpot 🎰")
 async def jackpot(interaction: discord.Interaction, amount: int):
 
@@ -885,43 +888,53 @@ async def warn(interaction: discord.Interaction, user: discord.Member, powod: st
         await interaction.response.send_message("❌ No permission", ephemeral=True)
         return
 
-    data, user_id = get_user(interaction.user.id)
-    user_id = str(user.id)
+    data, _ = get_user(interaction.user.id)
+    target_id = str(user.id)
 
-    data[user_id]["warns"] += 1
-    warns = data[user_id]["warns"]
+    if target_id not in data:
+        data[target_id] = {"money": 0, "warns": 0}
+
+    data[target_id]["warns"] += 1
+    warns = data[target_id]["warns"]
 
     save_data(data)
 
-    msg = f"⚠️ {user.mention} He received a warning.!\nReason: {powod}\nWarns: {warns}"
+    await interaction.response.send_message(
+        f"⚠️ {user.mention} got warned!\nReason: {powod}\nWarns: {warns}"
+    )
+@bot.tree.command(name="warnings", description="Check warns 📋")
+async def warnings(interaction: discord.Interaction, user: discord.Member):
 
-@bot.tree.command(name="warnings", description="Check the warns 📋")
-async def warns(interaction: discord.Interaction, user: discord.Member):
-    data = get_user(user.id)
+    data, _ = get_user(interaction.user.id)
     user_id = str(user.id)
+
+    if user_id not in data:
+        data[user_id] = {"money": 0, "warns": 0}
 
     warns = data[user_id]["warns"]
 
     await interaction.response.send_message(
         f"📋 {user.mention} has {warns} warns"
     )
-@bot.tree.command(name="clearwarns", description="Delete Warns 🧹")
+@bot.tree.command(name="clearwarns", description="Delete warns 🧹")
 async def clearwarns(interaction: discord.Interaction, user: discord.Member):
 
     if not interaction.user.guild_permissions.kick_members:
         await interaction.response.send_message("❌ No permission", ephemeral=True)
         return
 
-    data, user_id = get_user(interaction.user.id)
-    user_id = str(user.id)
+    data, _ = get_user(interaction.user.id)
+    target_id = str(user.id)
 
-    data[user_id]["warns"] = 0
+    if target_id not in data:
+        data[target_id] = {"money": 0, "warns": 0}
+
+    data[target_id]["warns"] = 0
     save_data(data)
 
     await interaction.response.send_message(
-        f"🧹 The warnings were cleared for {user.mention}"
+        f"🧹 Warnings cleared for {user.mention}"
     )
-
 
 @bot.tree.command(name="hejpl", description="Powitanie")
 async def hej(interaction: discord.Interaction):
