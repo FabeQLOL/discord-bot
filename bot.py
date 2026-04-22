@@ -1018,7 +1018,7 @@ async def daily(interaction: discord.Interaction):
 
     await interaction.response.send_message(f"🎁 Dostałeś {nagroda}$!")
 
-@bot.tree.command(name="top", description="Najbogatsi gracze 💰")
+@bot.tree.command(name="toppl", description="Najbogatsi gracze 💰")
 async def top(interaction: discord.Interaction):
     data = load_data()
 
