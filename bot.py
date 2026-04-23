@@ -130,11 +130,12 @@ async def on_message(message):
         return
 
     if any(word in message.content.lower() for word in BAD_WORDS):
-    await message.delete()
-    await message.channel.send(
-        f"⚠️ {message.author.mention} Watch your language!",
-        delete_after=5
-    )
+        await message.delete()
+        await message.channel.send(
+            f"⚠️ {message.author.mention} Watch your language!",
+            delete_after=5
+        )
+
 
     if "http" in message.content:
     if not message.author.guild_permissions.manage_messages:
