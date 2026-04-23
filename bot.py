@@ -167,8 +167,6 @@ if log_channel:
         f"📋 {message.author} got a warn ({warns}) for: {message.content}"
     )
 
- await bot.process_commands(message)
-
 # ===== KOMENDY =====
 
 # -------------------------
