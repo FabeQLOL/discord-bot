@@ -144,46 +144,53 @@ async def on_message(message):
     data = load_data()
     user_id = str(message.author.id)
 
-    # jeśli user nie istnieje → twórz
     if user_id not in data:
-        data[user_id] = {
-            "warns": 0
-        }
+        data[user_id] = {"warns": 0}
 
-    # 🚫 WULGARYZMY
-    if any(word in message.content.lower() for word in BAD_WORDS):
+    warns = data[user_id]["warns"]
+    content = message.content.lower()
+
+    # ======================
+    # 🚫 BAD WORDS
+    # ======================
+    if any(word in content for word in BAD_WORDS):
         await message.delete()
-
-        data[user_id]["warns"] += 1
-        warns = data[user_id]["warns"]
+        warns += 1
 
         await message.channel.send(
             f"⚠️ {message.author.mention} No bad language!",
             delete_after=5
         )
 
-    # 🔗 LINKI
-    elif "http" in message.content:
+    # ======================
+    # 🔗 LINKS (LEPSZY DETEKTOR)
+    # ======================
+    if "http://" in content or "https://" in content or "discord.gg" in content:
         if not message.author.guild_permissions.manage_messages:
             await message.delete()
-
-            data[user_id]["warns"] += 1
-            warns = data[user_id]["warns"]
+            warns += 1
 
             await message.channel.send(
                 f"🚫 {message.author.mention} No links allowed!",
                 delete_after=5
             )
 
-    else:
-        warns = data[user_id]["warns"]
+    # ======================
+    # 💾 SAVE WARNY
+    # ======================
+    data[user_id]["warns"] = warns
+    save_data(data)
 
+    # ======================
     # ⚡ KARY
+    # ======================
     if warns == 3:
         await message.author.timeout(
             discord.utils.utcnow() + discord.timedelta(minutes=10)
         )
-        await message.channel.send(f"⏳ {message.author.mention} muted for 10 min.")
+        await message.channel.send(
+            f"⏳ {message.author.mention} muted for 10 min."
+        )
 
     elif warns >= 5:
         await message.guild.kick(
@@ -191,10 +198,9 @@ async def on_message(message):
             reason="Too many warns"
         )
 
-    # 💾 SAVE
-    save_data(data)
-
+    # ======================
     # 📋 LOGI
+    # ======================
     log_channel = discord.utils.get(message.guild.text_channels, name="logs")
 
     if log_channel:
@@ -202,7 +208,9 @@ async def on_message(message):
             f"📋 {message.author} | warns: {warns} | msg: {message.content}"
         )
 
-    # 🔥 WAŻNE
+    # ======================
+    # KOMENDY
+    # ======================
     await bot.process_commands(message)
     
 # ===== KOMENDY =====
