@@ -122,13 +122,12 @@ async def on_ready():
 async def global_check(interaction:discord.Interaction):
     return True
 
+BAD_WORDS = ["fuck off", "Moron", "fuck", "shit", "idiot", "fucking", "fuckin", "the shit", "faggot", "cunt", "scum", "penis", "dick", "dih", "motherfuck", "motherfucker", "cum"]
+
 @bot.event
 async def on_message(message):
     if message.author.bot:
         return
-
-BAD_WORDS = ["fuck off", "Moron", "fuck", "shit", "idiot", "fucking", "fuckin", "the shit", "faggot", "cunt", "scum", "penis", "dick", "dih", "motherfuck", "motherfucker", "cum"]
-
 
 if any(word in message.content.lower() for word in BAD_WORDS):
     await message.delete()
