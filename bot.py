@@ -122,6 +122,53 @@ async def on_ready():
 async def global_check(interaction:discord.Interaction):
     return True
 
+@bot.event
+async def on_message(message):
+    if message.author.bot:
+        return
+
+BAD_WORDS = ["fuck off", "Moron", "fuck", "shit", "idiot", "fucking", "fuckin", "the shit", "faggot", "cunt", "scum", "penis", "dick", "dih", "motherfuck", "motherfucker", "cum"]
+
+
+if any(word in message.content.lower() for word in BAD_WORDS):
+    await message.delete()
+    await message.channel.send(
+        f"⚠️ {message.author.mention} Watch your language!",
+        delete_after=5
+    )
+
+if "http" in message.content:
+    if not message.author.guild_permissions.manage_messages:
+        await message.delete()
+        await message.channel.send(
+            f"🚫 {message.author.mention} No links allowed!",
+            delete_after=5
+        )
+
+data, _ = get_user(message.author.id)
+user_id = str(message.author.id)
+
+data[user_id]["warns"] += 1
+warns = data[user_id]["warns"]
+
+save_data(data)
+
+if warns == 3:
+    await message.author.timeout(discord.timedelta(minutes=10))
+    await message.channel.send(f"⏳ {message.author.mention} muted for 10 min.")
+
+elif warns == 5:
+    await message.author.kick(reason="Too many warns")
+
+log_channel = discord.utils.get(message.guild.text_channels, name="logs")
+
+if log_channel:
+    await log_channel.send(
+        f"📋 {message.author} got a warn ({warns}) for: {message.content}"
+    )
+
+ await bot.process_commands(message)
+
 # ===== KOMENDY =====
 
 # -------------------------
