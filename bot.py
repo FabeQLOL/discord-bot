@@ -85,7 +85,7 @@ def load_balance():
 def save_balance(data):
     with open("balance.json", "w") as f:
         json.dump(data, f)
-
+        
 @bot.event
 async def on_message(message):
     if message.author.bot:
@@ -124,49 +124,87 @@ async def global_check(interaction:discord.Interaction):
 
 BAD_WORDS = ["fuck off", "Moron", "fuck", "shit", "idiot", "fucking", "fuckin", "the shit", "faggot", "cunt", "scum", "penis", "dick", "dih", "motherfuck", "motherfucker", "cum"]
 
+if not os.path.exists("balances.json"):
+    with open("balances.json", "w") as f:
+        json.dump({}, f)
+
+def load_data():
+    with open("balances.json", "r") as f:
+        return json.load(f)
+
+def save_data(data):
+    with open("balances.json", "w") as f:
+        json.dump(data, f, indent=4)
+
 @bot.event
 async def on_message(message):
     if message.author.bot:
         return
 
+    data = load_data()
+    user_id = str(message.author.id)
+
+    # jeśli user nie istnieje → twórz
+    if user_id not in data:
+        data[user_id] = {
+            "warns": 0
+        }
+
+    # 🚫 WULGARYZMY
     if any(word in message.content.lower() for word in BAD_WORDS):
         await message.delete()
+
+        data[user_id]["warns"] += 1
+        warns = data[user_id]["warns"]
+
         await message.channel.send(
-            f"⚠️ {message.author.mention} Watch your language!",
+            f"⚠️ {message.author.mention} No bad language!",
             delete_after=5
         )
 
+    # 🔗 LINKI
+    elif "http" in message.content:
+        if not message.author.guild_permissions.manage_messages:
+            await message.delete()
 
-    if "http" in message.content:
-    if not message.author.guild_permissions.manage_messages:
-        await message.delete()
-        await message.channel.send(
-            f"🚫 {message.author.mention} No links allowed!",
-            delete_after=5
+            data[user_id]["warns"] += 1
+            warns = data[user_id]["warns"]
+
+            await message.channel.send(
+                f"🚫 {message.author.mention} No links allowed!",
+                delete_after=5
+            )
+
+    else:
+        warns = data[user_id]["warns"]
+
+    # ⚡ KARY
+    if warns == 3:
+        await message.author.timeout(
+            discord.utils.utcnow() + discord.timedelta(minutes=10)
+        )
+        await message.channel.send(f"⏳ {message.author.mention} muted for 10 min.")
+
+    elif warns >= 5:
+        await message.guild.kick(
+            message.author,
+            reason="Too many warns"
         )
 
-data, _ = get_user(message.author.id)
-user_id = str(message.author.id)
+    # 💾 SAVE
+    save_data(data)
 
-data[user_id]["warns"] += 1
-warns = data[user_id]["warns"]
+    # 📋 LOGI
+    log_channel = discord.utils.get(message.guild.text_channels, name="logs")
 
-save_data(data)
+    if log_channel:
+        await log_channel.send(
+            f"📋 {message.author} | warns: {warns} | msg: {message.content}"
+        )
 
-if warns == 3:
-    await message.author.timeout(discord.timedelta(minutes=10))
-    await message.channel.send(f"⏳ {message.author.mention} muted for 10 min.")
-
-elif warns == 5:
-    await message.author.kick(reason="Too many warns")
-
-log_channel = discord.utils.get(message.guild.text_channels, name="logs")
-
-if log_channel:
-    await log_channel.send(
-        f"📋 {message.author} got a warn ({warns}) for: {message.content}"
-    )
-
+    # 🔥 WAŻNE
+    await bot.process_commands(message)
+    
 # ===== KOMENDY =====
 
 # -------------------------
